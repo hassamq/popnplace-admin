@@ -18,6 +18,9 @@ const OverviewBankingPage = lazy(() => import('src/pages/dashboard/banking'));
 const OverviewBookingPage = lazy(() => import('src/pages/dashboard/booking'));
 const OverviewFilePage = lazy(() => import('src/pages/dashboard/file'));
 const OverviewCoursePage = lazy(() => import('src/pages/dashboard/course'));
+// Parking
+const ParkingListPage = lazy(() => import('src/pages/dashboard/parking/list'));
+const ParkingNewPage = lazy(() => import('src/pages/dashboard/parking/new'));
 // Product
 const ProductDetailsPage = lazy(() => import('src/pages/dashboard/product/details'));
 const ProductListPage = lazy(() => import('src/pages/dashboard/product/list'));
@@ -88,6 +91,14 @@ export const dashboardRoutes = [
       { path: 'booking', element: <OverviewBookingPage /> },
       { path: 'file', element: <OverviewFilePage /> },
       { path: 'course', element: <OverviewCoursePage /> },
+      {
+        path: 'parking',
+        children: [
+          { element: <ParkingListPage />, index: true },
+          { path: 'list', element: <ParkingListPage /> },
+          { path: 'new', element: <ParkingNewPage /> },
+        ],
+      },
       {
         path: 'user',
         children: [

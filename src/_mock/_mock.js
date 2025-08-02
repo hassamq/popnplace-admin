@@ -70,6 +70,8 @@ export const _mock = {
     nativeS: (index) => _nativeS[index],
     nativeM: (index) => _nativeM[index],
     nativeL: (index) => _nativeL[index],
+    latitude: (index) => 40.7128 + index * 0.01 - 0.1, // NYC area with variation
+    longitude: (index) => -74.006 + index * 0.01 - 0.1, // NYC area with variation
   },
   // Image
   image: {
@@ -82,5 +84,48 @@ export const _mock = {
       `${CONFIG.assetsDir}/assets/images/mock/m-product/product-${index + 1}.webp`,
     portrait: (index) =>
       `${CONFIG.assetsDir}/assets/images/mock/portrait/portrait-${index + 1}.webp`,
+  },
+  // Parking specific mock data
+  parkingType: (index) => {
+    const types = [
+      'Standard',
+      'Compact',
+      'SUV/Truck',
+      'Motorcycle',
+      'Electric Vehicle',
+      'Disabled',
+      'VIP/Premium',
+    ];
+    return types[index % types.length];
+  },
+  parkingLocation: (index) => {
+    const locations = [
+      'Downtown Plaza',
+      'Mall Parking',
+      'Business District',
+      'Residential Area',
+      'Airport Terminal',
+      'Hospital Complex',
+      'University Campus',
+      'Shopping Center',
+    ];
+    return locations[index % locations.length];
+  },
+  parkingStatus: (index) => {
+    const statuses = ['available', 'occupied', 'maintenance', 'reserved'];
+    return statuses[index % statuses.length];
+  },
+  parkingFeatures: (index) => {
+    const allFeatures = [
+      'Covered',
+      'Security Camera',
+      'EV Charging',
+      'Disabled Access',
+      '24/7 Access',
+      'Lighting',
+      'Security Guard',
+    ];
+    const numFeatures = Math.floor(Math.random() * 4) + 1;
+    return allFeatures.slice(0, numFeatures);
   },
 };

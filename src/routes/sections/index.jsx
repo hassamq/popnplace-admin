@@ -4,6 +4,7 @@ import { Navigate, useRoutes } from 'react-router-dom';
 import { MainLayout } from 'src/layouts/main';
 
 import { SplashScreen } from 'src/components/loading-screen';
+import { AuthRedirect } from 'src/components/auth-redirect';
 
 import { authRoutes } from './auth';
 import { mainRoutes } from './main';
@@ -19,10 +20,10 @@ export function Router() {
   return useRoutes([
     {
       path: '/',
-      /**
-       * Skip home page
-       * element: <Navigate to={CONFIG.auth.redirectPath} replace />,
-       */
+      element: <AuthRedirect />,
+    },
+    {
+      path: '/home',
       element: (
         <Suspense fallback={<SplashScreen />}>
           <MainLayout>
