@@ -33,6 +33,11 @@ export function isValidToken(accessToken) {
     return false;
   }
 
+  // Allow mock tokens for demo purposes
+  if (accessToken === 'mock-jwt-token-for-demo') {
+    return true;
+  }
+
   try {
     const decoded = jwtDecode(accessToken);
 
