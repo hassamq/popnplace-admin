@@ -1,4 +1,5 @@
 import axios, { endpoints } from 'src/utils/axios';
+import { CONFIG } from 'src/config-global';
 
 import { setSession } from './utils';
 import { STORAGE_KEY } from './constant';
@@ -8,6 +9,14 @@ import { STORAGE_KEY } from './constant';
  *************************************** */
 export const signInWithPassword = async ({ email, password }) => {
   try {
+    // If no server URL is configured, use mock authentication
+    if (!CONFIG.serverUrl) {
+      // Mock authentication - accept any email/password for demo
+      const mockToken = 'mock-jwt-token-for-demo';
+      setSession(mockToken);
+      return;
+    }
+
     const params = { email, password };
 
     const res = await axios.post(endpoints.auth.signIn, params);
@@ -37,6 +46,14 @@ export const signUp = async ({ email, password, firstName, lastName }) => {
   };
 
   try {
+    // If no server URL is configured, use mock authentication
+    if (!CONFIG.serverUrl) {
+      // Mock authentication - create a demo token
+      const mockToken = 'mock-jwt-token-for-demo';
+      sessionStorage.setItem(STORAGE_KEY, mockToken);
+      return;
+    }
+
     const res = await axios.post(endpoints.auth.signUp, params);
 
     const { accessToken } = res.data;
