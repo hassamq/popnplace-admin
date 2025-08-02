@@ -1,8 +1,8 @@
 {
-  "name": "@minimal-kit/vite-js",
-  "author": "Minimals",
-  "version": "6.1.0",
-  "description": "Vite & JavaScript",
+  "name": "popnplace-admin",
+  "author": "PopnPlace",
+  "version": "1.0.0",
+  "description": "PopnPlace Admin Panel - Parking & Rental Space Management",
   "private": true,
   "type": "module",
   "scripts": {

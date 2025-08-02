@@ -34,12 +34,13 @@ export function OverviewAppView() {
       <Grid container spacing={3}>
         <Grid xs={12} md={8}>
           <AppWelcome
-            title={`Welcome back 👋 \n ${user?.displayName}`}
-            description="If you are going to use a passage of Lorem Ipsum, you need to be sure there isn't anything."
+            title={`Welcome back 👋 
+ ${user?.displayName}`}
+            description="Manage your parking spaces and rental properties efficiently with PopnPlace Admin Panel."
             img={<SeoIllustration hideBackground />}
             action={
               <Button variant="contained" color="primary">
-                Go now
+                Add New Space
               </Button>
             }
           />
@@ -49,154 +50,60 @@ export function OverviewAppView() {
           <AppFeatured list={_appFeatured} />
         </Grid>
 
-        <Grid xs={12} md={4}>
+        {/* PopnPlace specific metrics */}
+        <Grid xs={12} sm={6} md={3}>
           <AppWidgetSummary
-            title="Total active users"
+            title="Total Parking Spaces"
             percent={2.6}
-            total={18765}
+            total={1245}
+            icon={<Box component="span" sx={{ ...svgColorClasses.root }} />}
             chart={{
               categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
-              series: [15, 18, 12, 51, 68, 11, 39, 37],
+              series: [22, 8, 35, 50, 82, 84, 77, 12],
             }}
           />
         </Grid>
 
-        <Grid xs={12} md={4}>
+        <Grid xs={12} sm={6} md={3}>
           <AppWidgetSummary
-            title="Total installed"
-            percent={0.2}
-            total={4876}
-            chart={{
-              colors: [theme.vars.palette.info.main],
-              categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
-              series: [20, 41, 63, 33, 28, 35, 50, 46],
-            }}
-          />
-        </Grid>
-
-        <Grid xs={12} md={4}>
-          <AppWidgetSummary
-            title="Total downloads"
+            title="Active Bookings"
             percent={-0.1}
-            total={678}
+            total={387}
+            color="info"
+            icon={<Box component="span" sx={{ ...svgColorClasses.root }} />}
             chart={{
-              colors: [theme.vars.palette.error.main],
               categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
-              series: [18, 19, 31, 8, 16, 37, 12, 33],
+              series: [56, 47, 40, 62, 73, 30, 23, 54],
             }}
           />
         </Grid>
 
-        <Grid xs={12} md={6} lg={4}>
-          <AppCurrentDownload
-            title="Current download"
-            subheader="Downloaded by operating system"
+        <Grid xs={12} sm={6} md={3}>
+          <AppWidgetSummary
+            title="Monthly Revenue"
+            percent={0.6}
+            total={48576}
+            color="warning"
+            icon={<Box component="span" sx={{ ...svgColorClasses.root }} />}
             chart={{
-              series: [
-                { label: 'Mac', value: 12244 },
-                { label: 'Window', value: 53345 },
-                { label: 'iOS', value: 44313 },
-                { label: 'Android', value: 78343 },
-              ],
+              categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
+              series: [40, 70, 75, 70, 50, 28, 7, 64],
             }}
           />
         </Grid>
 
-        <Grid xs={12} md={6} lg={8}>
-          <AppAreaInstalled
-            title="Area installed"
-            subheader="(+43%) than last year"
+        <Grid xs={12} sm={6} md={3}>
+          <AppWidgetSummary
+            title="Registered Users"
+            percent={2.8}
+            total={1897}
+            color="error"
+            icon={<Box component="span" sx={{ ...svgColorClasses.root }} />}
             chart={{
-              categories: [
-                'Jan',
-                'Feb',
-                'Mar',
-                'Apr',
-                'May',
-                'Jun',
-                'Jul',
-                'Aug',
-                'Sep',
-                'Oct',
-                'Nov',
-                'Dec',
-              ],
-              series: [
-                {
-                  name: '2022',
-                  data: [
-                    { name: 'Asia', data: [12, 10, 18, 22, 20, 12, 8, 21, 20, 14, 15, 16] },
-                    { name: 'Europe', data: [12, 10, 18, 22, 20, 12, 8, 21, 20, 14, 15, 16] },
-                    { name: 'Americas', data: [12, 10, 18, 22, 20, 12, 8, 21, 20, 14, 15, 16] },
-                  ],
-                },
-                {
-                  name: '2023',
-                  data: [
-                    { name: 'Asia', data: [6, 18, 14, 9, 20, 6, 22, 19, 8, 22, 8, 17] },
-                    { name: 'Europe', data: [6, 18, 14, 9, 20, 6, 22, 19, 8, 22, 8, 17] },
-                    { name: 'Americas', data: [6, 18, 14, 9, 20, 6, 22, 19, 8, 22, 8, 17] },
-                  ],
-                },
-                {
-                  name: '2024',
-                  data: [
-                    { name: 'Asia', data: [6, 20, 15, 18, 7, 24, 6, 10, 12, 17, 18, 10] },
-                    { name: 'Europe', data: [6, 20, 15, 18, 7, 24, 6, 10, 12, 17, 18, 10] },
-                    { name: 'Americas', data: [6, 20, 15, 18, 7, 24, 6, 10, 12, 17, 18, 10] },
-                  ],
-                },
-              ],
+              categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
+              series: [56, 30, 23, 54, 47, 40, 62, 73],
             }}
           />
-        </Grid>
-
-        <Grid xs={12} lg={8}>
-          <AppNewInvoice
-            title="New invoice"
-            tableData={_appInvoices}
-            headLabel={[
-              { id: 'id', label: 'Invoice ID' },
-              { id: 'category', label: 'Category' },
-              { id: 'price', label: 'Price' },
-              { id: 'status', label: 'Status' },
-              { id: '' },
-            ]}
-          />
-        </Grid>
-
-        <Grid xs={12} md={6} lg={4}>
-          <AppTopRelated title="Related applications" list={_appRelated} />
-        </Grid>
-
-        <Grid xs={12} md={6} lg={4}>
-          <AppTopInstalledCountries title="Top installed countries" list={_appInstalled} />
-        </Grid>
-
-        <Grid xs={12} md={6} lg={4}>
-          <AppTopAuthors title="Top authors" list={_appAuthors} />
-        </Grid>
-
-        <Grid xs={12} md={6} lg={4}>
-          <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
-            <AppWidget
-              title="Conversion"
-              total={38566}
-              icon="solar:user-rounded-bold"
-              chart={{ series: 48 }}
-            />
-
-            <AppWidget
-              title="Applications"
-              total={55566}
-              icon="fluent:mail-24-filled"
-              chart={{
-                series: 75,
-                colors: [theme.vars.palette.info.light, theme.vars.palette.info.main],
-              }}
-              sx={{ bgcolor: 'info.dark', [`& .${svgColorClasses.root}`]: { color: 'info.light' } }}
-            />
-          </Box>
         </Grid>
       </Grid>
     </DashboardContent>
