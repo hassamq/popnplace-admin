@@ -131,10 +131,10 @@ export function DashboardLayout({ sx, children, header, data }) {
                   />
                 )}
                 {/* -- Workspace popover -- */}
-                <WorkspacesPopover
+                {/* <WorkspacesPopover
                   data={_workspaces}
                   sx={{ color: 'var(--layout-nav-text-primary-color)' }}
-                />
+                /> */}
               </>
             ),
             rightArea: (
@@ -144,11 +144,11 @@ export function DashboardLayout({ sx, children, header, data }) {
                 {/* -- Language popover -- */}
                 <LanguagePopover data={allLangs} />
                 {/* -- Notifications popover -- */}
-                <NotificationsDrawer data={_notifications} />
+                {/* <NotificationsDrawer data={_notifications} /> */}
                 {/* -- Contacts popover -- */}
-                <ContactsPopover data={_contacts} />
+                {/* <ContactsPopover data={_contacts} /> */}
                 {/* -- Settings button -- */}
-                <SettingsButton />
+                {/* <SettingsButton /> */}
                 {/* -- Account drawer -- */}
                 <AccountDrawer data={_account} />
               </Box>

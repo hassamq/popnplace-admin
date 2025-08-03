@@ -30,7 +30,7 @@ export function NavUpgrade({ sx, ...other }) {
           </Avatar>
 
           <Label
-            color="success"
+            // color="success"
             variant="filled"
             sx={{
               top: -6,
@@ -41,7 +41,7 @@ export function NavUpgrade({ sx, ...other }) {
               borderBottomLeftRadius: 2,
             }}
           >
-            Free
+            Admin
           </Label>
         </Box>
 
@@ -63,9 +63,9 @@ export function NavUpgrade({ sx, ...other }) {
           </Typography>
         </Stack>
 
-        <Button variant="contained" href={paths.minimalStore} target="_blank" rel="noopener">
+        {/* <Button variant="contained" href={paths.minimalStore} target="_blank" rel="noopener">
           Upgrade to Pro
-        </Button>
+        </Button> */}
       </Stack>
     </Stack>
   );
