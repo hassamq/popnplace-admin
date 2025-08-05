@@ -63,6 +63,7 @@ export function tokenExpired(exp) {
   setTimeout(() => {
     try {
       alert('Token expired!');
+      localStorage.removeItem(STORAGE_KEY);
       sessionStorage.removeItem(STORAGE_KEY);
       window.location.href = paths.auth.jwt.signIn;
     } catch (error) {
@@ -77,6 +78,7 @@ export function tokenExpired(exp) {
 export async function setSession(accessToken) {
   try {
     if (accessToken) {
+      localStorage.setItem(STORAGE_KEY, accessToken);
       sessionStorage.setItem(STORAGE_KEY, accessToken);
 
       axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
@@ -89,6 +91,7 @@ export async function setSession(accessToken) {
         throw new Error('Invalid access token!');
       }
     } else {
+      localStorage.removeItem(STORAGE_KEY);
       sessionStorage.removeItem(STORAGE_KEY);
       delete axios.defaults.headers.common.Authorization;
     }

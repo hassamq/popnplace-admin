@@ -5,11 +5,12 @@ import Grid from '@mui/material/Unstable_Grid2';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 import { SeoIllustration } from 'src/assets/illustrations';
+
 import { _appAuthors, _appRelated, _appFeatured, _appInvoices, _appInstalled } from 'src/_mock';
 
 import { svgColorClasses } from 'src/components/svg-color';
 
-import { useMockedUser } from 'src/auth/hooks';
+import { useAuthContext } from 'src/auth/hooks';
 
 import { AppWidget } from '../app-widget';
 import { AppWelcome } from '../app-welcome';
@@ -25,7 +26,9 @@ import { AppTopInstalledCountries } from '../app-top-installed-countries';
 // ----------------------------------------------------------------------
 
 export function OverviewAppView() {
-  const { user } = useMockedUser();
+  const { user } = useAuthContext();
+
+  console.log('User:', user);
 
   const theme = useTheme();
 
@@ -35,7 +38,7 @@ export function OverviewAppView() {
         <Grid xs={12} md={8}>
           <AppWelcome
             title={`Welcome back 👋 
- ${user?.displayName}`}
+ ${user?.data?.firstName} ${user?.data?.lastName}!`}
             description="Manage your parking spaces and rental properties efficiently with PopnPlace Admin Panel."
             img={<SeoIllustration hideBackground />}
             action={

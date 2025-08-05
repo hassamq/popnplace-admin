@@ -21,7 +21,7 @@ import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { AnimateAvatar } from 'src/components/animate';
 
-import { useMockedUser } from 'src/auth/hooks';
+import { useAuthContext } from 'src/auth/hooks';
 
 import { UpgradeBlock } from './nav-upgrade';
 import { AccountButton } from './account-button';
@@ -36,7 +36,7 @@ export function AccountDrawer({ data = [], sx, ...other }) {
 
   const pathname = usePathname();
 
-  const { user } = useMockedUser();
+  const { user } = useAuthContext();
 
   const [open, setOpen] = useState(false);
 
@@ -101,11 +101,15 @@ export function AccountDrawer({ data = [], sx, ...other }) {
             {renderAvatar}
 
             <Typography variant="subtitle1" noWrap sx={{ mt: 2 }}>
-              {user?.displayName}
+              {user?.data?.firstName} {user?.data?.lastName}
             </Typography>
 
             <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5 }} noWrap>
-              {user?.email}
+              {user?.data?.email}
+            </Typography>
+
+            <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5 }} noWrap>
+              {user?.data?.phoneNumber}
             </Typography>
           </Stack>
           {/* 
@@ -143,36 +147,114 @@ export function AccountDrawer({ data = [], sx, ...other }) {
               borderBottom: `dashed 1px ${theme.vars.palette.divider}`,
             }}
           >
-            {data.map((option) => {
-              const rootLabel = pathname.includes('/dashboard') ? 'Home' : 'Dashboard';
+            {/* Dashboard */}
+            <MenuItem
+              onClick={() => handleClickItem(paths.dashboard.root)}
+              sx={{
+                py: 1,
+                color: 'text.secondary',
+                '& svg': { width: 24, height: 24 },
+                '&:hover': { color: 'text.primary' },
+              }}
+            >
+              <Iconify icon="mdi:view-dashboard" />
+              <Box component="span" sx={{ ml: 2 }}>
+                Overview
+              </Box>
+            </MenuItem>
 
-              const rootHref = pathname.includes('/dashboard') ? '/' : paths.dashboard.root;
+            <MenuItem
+              onClick={() => handleClickItem(paths.dashboard.general.analytics)}
+              sx={{
+                py: 1,
+                color: 'text.secondary',
+                '& svg': { width: 24, height: 24 },
+                '&:hover': { color: 'text.primary' },
+              }}
+            >
+              <Iconify icon="mdi:chart-line" />
+              <Box component="span" sx={{ ml: 2 }}>
+                Analytics
+              </Box>
+            </MenuItem>
 
-              return (
-                <MenuItem
-                  key={option.label}
-                  onClick={() => handleClickItem(option.label === 'Home' ? rootHref : option.href)}
-                  sx={{
-                    py: 1,
-                    color: 'text.secondary',
-                    '& svg': { width: 24, height: 24 },
-                    '&:hover': { color: 'text.primary' },
-                  }}
-                >
-                  {option.icon}
+            {/* Parking Management */}
+            <MenuItem
+              onClick={() => handleClickItem(paths.dashboard.parking.list)}
+              sx={{
+                py: 1,
+                color: 'text.secondary',
+                '& svg': { width: 24, height: 24 },
+                '&:hover': { color: 'text.primary' },
+              }}
+            >
+              <Iconify icon="mdi:car" />
+              <Box component="span" sx={{ ml: 2 }}>
+                Parking Spaces
+              </Box>
+            </MenuItem>
 
-                  <Box component="span" sx={{ ml: 2 }}>
-                    {option.label === 'Home' ? rootLabel : option.label}
-                  </Box>
+            {/* Bookings & Reservations */}
+            <MenuItem
+              onClick={() => handleClickItem(paths.dashboard.bookings.list)}
+              sx={{
+                py: 1,
+                color: 'text.secondary',
+                '& svg': { width: 24, height: 24 },
+                '&:hover': { color: 'text.primary' },
+              }}
+            >
+              <Iconify icon="mdi:calendar-check" />
+              <Box component="span" sx={{ ml: 2 }}>
+                Bookings
+              </Box>
+            </MenuItem>
 
-                  {option.info && (
-                    <Label color="error" sx={{ ml: 1 }}>
-                      {option.info}
-                    </Label>
-                  )}
-                </MenuItem>
-              );
-            })}
+            <MenuItem
+              onClick={() => handleClickItem(paths.dashboard.payments.list)}
+              sx={{
+                py: 1,
+                color: 'text.secondary',
+                '& svg': { width: 24, height: 24 },
+                '&:hover': { color: 'text.primary' },
+              }}
+            >
+              <Iconify icon="mdi:credit-card" />
+              <Box component="span" sx={{ ml: 2 }}>
+                Payments
+              </Box>
+            </MenuItem>
+
+            {/* User Management */}
+            <MenuItem
+              onClick={() => handleClickItem(paths.dashboard.owners.list)}
+              sx={{
+                py: 1,
+                color: 'text.secondary',
+                '& svg': { width: 24, height: 24 },
+                '&:hover': { color: 'text.primary' },
+              }}
+            >
+              <Iconify icon="mdi:account-star" />
+              <Box component="span" sx={{ ml: 2 }}>
+                Space Owners
+              </Box>
+            </MenuItem>
+
+            <MenuItem
+              onClick={() => handleClickItem(paths.dashboard.tenants.list)}
+              sx={{
+                py: 1,
+                color: 'text.secondary',
+                '& svg': { width: 24, height: 24 },
+                '&:hover': { color: 'text.primary' },
+              }}
+            >
+              <Iconify icon="mdi:account" />
+              <Box component="span" sx={{ ml: 2 }}>
+                Renters
+              </Box>
+            </MenuItem>
           </Stack>
 
           {/* <Box sx={{ px: 2.5, py: 3 }}>

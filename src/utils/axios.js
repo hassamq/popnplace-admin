@@ -4,7 +4,12 @@ import { CONFIG } from 'src/config-global';
 
 // ----------------------------------------------------------------------
 
-const axiosInstance = axios.create({ baseURL: CONFIG.serverUrl });
+// Use the correct API server URL from environment or fallback to the dev API
+const API_BASE_URL = CONFIG.serverUrl || 'https://dev-api.popnplace.nl';
+
+console.log('Old Axios Instance - API Base URL:', API_BASE_URL); // Debug log
+
+const axiosInstance = axios.create({ baseURL: API_BASE_URL });
 
 axiosInstance.interceptors.response.use(
   (response) => response,
@@ -31,28 +36,35 @@ export const fetcher = async (args) => {
 // ----------------------------------------------------------------------
 
 export const endpoints = {
-  chat: '/api/chat',
-  kanban: '/api/kanban',
-  calendar: '/api/calendar',
+  chat: '/api/v1/chat',
+  kanban: '/api/v1/kanban',
+  calendar: '/api/v1/calendar',
   auth: {
-    me: '/api/auth/me',
-    signIn: '/api/auth/sign-in',
-    signUp: '/api/auth/sign-up',
+    me: '/api/v1/auth/profile',
+    login: '/api/v1/auth/login',
+    signIn: '/api/v1/auth/login', // Add this for backward compatibility
+    signUp: '/api/v1/auth/sign-up',
+    logout: '/api/v1/auth/logout',
+    refresh: '/api/v1/auth/refresh',
   },
   mail: {
-    list: '/api/mail/list',
-    details: '/api/mail/details',
-    labels: '/api/mail/labels',
+    list: '/api/v1/mail/list',
+    details: '/api/v1/mail/details',
+    labels: '/api/v1/mail/labels',
   },
   post: {
-    list: '/api/post/list',
-    details: '/api/post/details',
-    latest: '/api/post/latest',
-    search: '/api/post/search',
+    list: '/api/v1/post/list',
+    details: '/api/v1/post/details',
+    latest: '/api/v1/post/latest',
+    search: '/api/v1/post/search',
   },
   product: {
-    list: '/api/product/list',
-    details: '/api/product/details',
-    search: '/api/product/search',
+    list: '/api/v1/product/list',
+    details: '/api/v1/product/details',
+    search: '/api/v1/product/search',
+  },
+  users: {
+    list: '/api/v1/users',
+    details: '/api/v1/users/:id',
   },
 };
