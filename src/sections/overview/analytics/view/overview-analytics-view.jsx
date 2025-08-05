@@ -1,43 +1,237 @@
+import { useState, useEffect } from 'react';
 import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
 
 import { CONFIG } from 'src/config-global';
 import { DashboardContent } from 'src/layouts/dashboard';
-import {
-  _analyticTasks,
-  _analyticPosts,
-  _analyticTraffic,
-  _analyticOrderTimeline,
-} from 'src/_mock';
+import { Iconify } from 'src/components/iconify';
+import { dashboardService } from 'src/services/api';
 
-import { AnalyticsNews } from '../analytics-news';
-import { AnalyticsTasks } from '../analytics-tasks';
-import { AnalyticsCurrentVisits } from '../analytics-current-visits';
-import { AnalyticsOrderTimeline } from '../analytics-order-timeline';
-import { AnalyticsWebsiteVisits } from '../analytics-website-visits';
 import { AnalyticsWidgetSummary } from '../analytics-widget-summary';
-import { AnalyticsTrafficBySite } from '../analytics-traffic-by-site';
-import { AnalyticsCurrentSubject } from '../analytics-current-subject';
-import { AnalyticsConversionRates } from '../analytics-conversion-rates';
+import { AnalyticsWebsiteVisits } from '../analytics-website-visits';
+import { AnalyticsCurrentVisits } from '../analytics-current-visits';
 
 // ----------------------------------------------------------------------
 
 export function OverviewAnalyticsView() {
+  const [dashboardData, setDashboardData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true);
+        const response = await dashboardService.getDashboardStats();
+        setDashboardData(response.data);
+      } catch (error) {
+        console.error('Failed to fetch dashboard data:', error);
+        // Fallback to mock data if API fails
+        setDashboardData({
+          userStats: {
+            totalUsers: 8,
+            totalHosts: 3,
+            totalRenters: 4,
+            totalAdmins: 1,
+            activeUsers: 8,
+            verifiedUsers: 4,
+            newUsersThisMonth: 8,
+            newUsersLastMonth: 0,
+          },
+          storageStats: {
+            totalSpaces: 8,
+            activeSpaces: 8,
+            pendingSpaces: 0,
+            verifiedSpaces: 6,
+            totalViews: 0,
+            avgRating: 0,
+            newSpacesThisMonth: 8,
+          },
+          bookingStats: {
+            totalBookings: 0,
+            pendingBookings: 0,
+            activeBookings: 0,
+            completedBookings: 0,
+            cancelledBookings: 0,
+            totalRevenue: 0,
+            avgBookingValue: 0,
+            newBookingsThisMonth: 0,
+            revenueThisMonth: 0,
+          },
+          paymentStats: {
+            totalPayments: 0,
+            totalAmount: 0,
+            totalServiceFees: 0,
+            totalProcessingFees: 0,
+            paymentsThisMonth: 0,
+            revenueThisMonth: 0,
+          },
+          reviewStats: {
+            totalReviews: 0,
+            publishedReviews: 0,
+            pendingReviews: 0,
+            flaggedReviews: 0,
+            avgRating: 0,
+            reviewsThisMonth: 0,
+          },
+          monthlyData: [
+            {
+              month: '2025-02',
+              users: 0,
+              bookings: 0,
+              revenue: 0,
+            },
+            {
+              month: '2025-03',
+              users: 0,
+              bookings: 0,
+              revenue: 0,
+            },
+            {
+              month: '2025-04',
+              users: 0,
+              bookings: 0,
+              revenue: 0,
+            },
+            {
+              month: '2025-05',
+              users: 0,
+              bookings: 0,
+              revenue: 0,
+            },
+            {
+              month: '2025-06',
+              users: 0,
+              bookings: 0,
+              revenue: 0,
+            },
+            {
+              month: '2025-07',
+              users: 0,
+              bookings: 0,
+              revenue: 0,
+            },
+            {
+              month: '2025-08',
+              users: 8,
+              bookings: 0,
+              revenue: 0,
+            },
+          ],
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  // Process monthly data for charts
+  const processMonthlyData = () => {
+    if (!dashboardData?.monthlyData) return { categories: [], series: [] };
+
+    const categories = dashboardData.monthlyData.map((item) => {
+      const date = new Date(`${item.month}-01`);
+      return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+    });
+
+    const series = [
+      {
+        name: 'Users',
+        data: dashboardData.monthlyData.map((item) => item.users),
+      },
+      {
+        name: 'Bookings',
+        data: dashboardData.monthlyData.map((item) => item.bookings),
+      },
+      {
+        name: 'Revenue',
+        data: dashboardData.monthlyData.map((item) => item.revenue),
+      },
+    ];
+
+    return { categories, series };
+  };
+
+  // Process booking stats for pie chart
+  const processBookingStats = () => {
+    if (!dashboardData?.bookingStats) return { series: [] };
+
+    const bookingStats = dashboardData.bookingStats;
+
+    return {
+      series: [
+        {
+          label: 'Total Bookings',
+          value: bookingStats.totalBookings || 0,
+        },
+        {
+          label: 'Pending Bookings',
+          value: bookingStats.pendingBookings || 0,
+        },
+        {
+          label: 'Active Bookings',
+          value: bookingStats.activeBookings || 0,
+        },
+        {
+          label: 'Completed Bookings',
+          value: bookingStats.completedBookings || 0,
+        },
+        {
+          label: 'Cancelled Bookings',
+          value: bookingStats.cancelledBookings || 0,
+        },
+      ],
+    };
+  };
+
+  // Process payment stats for pie chart
+  const processPaymentStats = () => {
+    if (!dashboardData?.paymentStats) return { series: [] };
+
+    const paymentStats = dashboardData.paymentStats;
+
+    return {
+      series: [
+        {
+          label: 'Total Payments',
+          value: paymentStats.totalPayments || 0,
+        },
+        {
+          label: 'Total Amount',
+          value: paymentStats.totalAmount || 0,
+        },
+        {
+          label: 'Service Fees',
+          value: paymentStats.totalServiceFees || 0,
+        },
+        {
+          label: 'Processing Fees',
+          value: paymentStats.totalProcessingFees || 0,
+        },
+      ],
+    };
+  };
+
+  const monthlyChart = processMonthlyData();
+  const bookingChart = processBookingStats();
+  const paymentChart = processPaymentStats();
+
   return (
     <DashboardContent maxWidth="xl">
-      <Typography variant="h4" sx={{ mb: { xs: 3, md: 5 } }}>
-        Hi, Welcome back 👋
+      <Typography variant="h4" sx={{ mb: 3 }}>
+        Analytics Dashboard
       </Typography>
 
       <Grid container spacing={3}>
+        {/* User Metrics */}
         <Grid xs={12} sm={6} md={3}>
           <AnalyticsWidgetSummary
-            title="Weekly sales"
-            percent={2.6}
-            total={714000}
-            icon={
-              <img alt="icon" src={`${CONFIG.assetsDir}/assets/icons/glass/ic-glass-bag.svg`} />
-            }
+            title="Total Users"
+            percent={0}
+            total={dashboardData?.userStats?.totalUsers || 0}
+            icon={<Iconify icon="mdi:account-group" />}
             chart={{
               categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
               series: [22, 8, 35, 50, 82, 84, 77, 12],
@@ -47,13 +241,11 @@ export function OverviewAnalyticsView() {
 
         <Grid xs={12} sm={6} md={3}>
           <AnalyticsWidgetSummary
-            title="New users"
-            percent={-0.1}
-            total={1352831}
+            title="Total Spaces"
+            percent={0}
+            total={dashboardData?.storageStats?.totalSpaces || 0}
             color="secondary"
-            icon={
-              <img alt="icon" src={`${CONFIG.assetsDir}/assets/icons/glass/ic-glass-users.svg`} />
-            }
+            icon={<Iconify icon="mdi:car" />}
             chart={{
               categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
               series: [56, 47, 40, 62, 73, 30, 23, 54],
@@ -63,13 +255,11 @@ export function OverviewAnalyticsView() {
 
         <Grid xs={12} sm={6} md={3}>
           <AnalyticsWidgetSummary
-            title="Purchase orders"
-            percent={2.8}
-            total={1723315}
+            title="Total Bookings"
+            percent={0}
+            total={dashboardData?.bookingStats?.totalBookings || 0}
             color="warning"
-            icon={
-              <img alt="icon" src={`${CONFIG.assetsDir}/assets/icons/glass/ic-glass-buy.svg`} />
-            }
+            icon={<Iconify icon="mdi:calendar-check" />}
             chart={{
               categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
               series: [40, 70, 50, 28, 70, 75, 7, 64],
@@ -79,13 +269,11 @@ export function OverviewAnalyticsView() {
 
         <Grid xs={12} sm={6} md={3}>
           <AnalyticsWidgetSummary
-            title="Messages"
-            percent={3.6}
-            total={234}
+            title="Total Revenue"
+            percent={0}
+            total={dashboardData?.bookingStats?.totalRevenue || 0}
             color="error"
-            icon={
-              <img alt="icon" src={`${CONFIG.assetsDir}/assets/icons/glass/ic-glass-message.svg`} />
-            }
+            icon={<Iconify icon="mdi:currency-usd" />}
             chart={{
               categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
               series: [56, 30, 23, 54, 47, 40, 62, 73],
@@ -93,76 +281,62 @@ export function OverviewAnalyticsView() {
           />
         </Grid>
 
-        <Grid xs={12} md={6} lg={4}>
-          <AnalyticsCurrentVisits
-            title="Current visits"
-            chart={{
-              series: [
-                { label: 'America', value: 3500 },
-                { label: 'Asia', value: 2500 },
-                { label: 'Europe', value: 1500 },
-                { label: 'Africa', value: 500 },
-              ],
-            }}
-          />
-        </Grid>
-
-        <Grid xs={12} md={6} lg={8}>
+        {/* Monthly Trends Chart */}
+        <Grid xs={12} md={8}>
           <AnalyticsWebsiteVisits
-            title="Website visits"
-            subheader="(+43%) than last year"
-            chart={{
-              categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
-              series: [
-                { name: 'Team A', data: [43, 33, 22, 37, 67, 68, 37, 24, 55] },
-                { name: 'Team B', data: [51, 70, 47, 67, 40, 37, 24, 70, 24] },
-              ],
-            }}
+            title="Monthly Trends"
+            subheader="Yearly overview of users, bookings, and revenue"
+            chart={monthlyChart}
           />
         </Grid>
 
-        <Grid xs={12} md={6} lg={8}>
-          <AnalyticsConversionRates
-            title="Conversion rates"
-            subheader="(+43%) than last year"
-            chart={{
-              categories: ['Italy', 'Japan', 'China', 'Canada', 'France'],
-              series: [
-                { name: '2022', data: [44, 55, 41, 64, 22] },
-                { name: '2023', data: [53, 32, 33, 52, 13] },
-              ],
-            }}
-          />
+        {/* Booking Distribution */}
+        <Grid xs={12} md={4}>
+          <AnalyticsCurrentVisits title="Booking Distribution" chart={bookingChart} />
         </Grid>
 
-        <Grid xs={12} md={6} lg={4}>
-          <AnalyticsCurrentSubject
-            title="Current subject"
-            chart={{
-              categories: ['English', 'History', 'Physics', 'Geography', 'Chinese', 'Math'],
-              series: [
-                { name: 'Series 1', data: [80, 50, 30, 40, 100, 20] },
-                { name: 'Series 2', data: [20, 30, 40, 80, 20, 80] },
-                { name: 'Series 3', data: [44, 76, 78, 13, 43, 10] },
-              ],
-            }}
-          />
+        {/* Payment Distribution */}
+        <Grid xs={12} md={4}>
+          <AnalyticsCurrentVisits title="Payment Distribution" chart={paymentChart} />
         </Grid>
 
-        <Grid xs={12} md={6} lg={8}>
-          <AnalyticsNews title="News" list={_analyticPosts} />
-        </Grid>
+        {/* Additional Metrics */}
+        <Grid xs={12} md={8}>
+          <Grid container spacing={2}>
+            <Grid xs={12} sm={6}>
+              <Box sx={{ p: 2, bgcolor: 'background.neutral', borderRadius: 1 }}>
+                <Typography variant="h6" gutterBottom>
+                  User Statistics
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Hosts: {dashboardData?.userStats?.totalHosts || 0}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Renters: {dashboardData?.userStats?.totalRenters || 0}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Verified Users: {dashboardData?.userStats?.verifiedUsers || 0}
+                </Typography>
+              </Box>
+            </Grid>
 
-        <Grid xs={12} md={6} lg={4}>
-          <AnalyticsOrderTimeline title="Order timeline" list={_analyticOrderTimeline} />
-        </Grid>
-
-        <Grid xs={12} md={6} lg={4}>
-          <AnalyticsTrafficBySite title="Traffic by site" list={_analyticTraffic} />
-        </Grid>
-
-        <Grid xs={12} md={6} lg={8}>
-          <AnalyticsTasks title="Tasks" list={_analyticTasks} />
+            <Grid xs={12} sm={6}>
+              <Box sx={{ p: 2, bgcolor: 'background.neutral', borderRadius: 1 }}>
+                <Typography variant="h6" gutterBottom>
+                  Space Statistics
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Active Spaces: {dashboardData?.storageStats?.activeSpaces || 0}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Verified Spaces: {dashboardData?.storageStats?.verifiedSpaces || 0}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Avg Rating: {dashboardData?.storageStats?.avgRating || 0}
+                </Typography>
+              </Box>
+            </Grid>
+          </Grid>
         </Grid>
       </Grid>
     </DashboardContent>

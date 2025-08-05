@@ -191,4 +191,35 @@ export const userService = {
 
 // ----------------------------------------------------------------------
 
+export const dashboardService = {
+  /**
+   * Get admin dashboard statistics
+   * @returns {Promise<Object>} Dashboard statistics
+   */
+  getDashboardStats: async () => {
+    try {
+      const response = await apiClient.get('/api/v1/admin/dashboard');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  /**
+   * Get detailed analytics
+   * @param {string} period - Analytics period (week, month, year)
+   * @returns {Promise<Object>} Analytics data
+   */
+  getAnalytics: async (period = 'week') => {
+    try {
+      const response = await apiClient.get(`/api/v1/admin/analytics?period=${period}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+};
+
+// ----------------------------------------------------------------------
+
 export default apiClient;
