@@ -132,13 +132,19 @@ export const authService = {
 
 export const userService = {
   /**
-   * Get all users
+   * Get all users with admin controls
    * @param {Object} params - Query parameters
-   * @returns {Promise<Object>} Users list
+   * @param {string} params.role - User role filter
+   * @param {boolean} params.isActive - Active status filter
+   * @param {boolean} params.isVerified - Verification status filter
+   * @param {number} params.page - Page number
+   * @param {number} params.limit - Items per page
+   * @param {string} params.search - Search term
+   * @returns {Promise<Object>} Users list with pagination
    */
   getUsers: async (params = {}) => {
     try {
-      const response = await apiClient.get('/api/v1/users', { params });
+      const response = await apiClient.get('/api/v1/admin/users', { params });
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;

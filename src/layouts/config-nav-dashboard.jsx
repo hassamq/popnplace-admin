@@ -104,12 +104,12 @@ export const navData = [
       },
       {
         title: 'Renters',
-        path: paths.dashboard.tenants.list,
+        path: paths.dashboard.renters.list,
         icon: ICONS.tenants,
         // children: [
-        //   { title: 'All Renters', path: paths.dashboard.tenants.list },
-        //   { title: 'Renter Profiles', path: paths.dashboard.tenants.profiles },
-        //   { title: 'Background Checks', path: paths.dashboard.tenants.checks },
+        //   { title: 'All Renters', path: paths.dashboard.renters.list },
+        //   { title: 'Renter Profiles', path: paths.dashboard.renters.profiles },
+        //   { title: 'Background Checks', path: paths.dashboard.renters.checks },
         // ],
       },
     ],
