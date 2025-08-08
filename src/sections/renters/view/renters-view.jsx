@@ -89,21 +89,14 @@ export default function RentersView() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(20);
 
-  const dataFiltered = applyFilter({
-    inputData: tableData,
-    comparator: getComparator(table.order, table.orderBy),
-    filters,
-  });
-
-  const dataInPage = dataFiltered.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-
+  // Use API data directly, no local filtering/slicing
   const denseHeight = table.dense ? 52 : 72;
 
   const canReset = !Object.values(filters).every(
     (value) => value === defaultFilters[value] || value === ''
   );
 
-  const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
+  const notFound = (!tableData.length && canReset) || !tableData.length;
 
   const handleFilters = useCallback(
     (name, value) => {
@@ -124,12 +117,9 @@ export default function RentersView() {
     (id) => {
       const deleteRow = tableData.filter((row) => row._id !== id);
       setTableData(deleteRow);
-
-      table.onUpdatePageDeleteRow(dataInPage.length);
-
       toast.success('Delete success!');
     },
-    [dataInPage.length, table, tableData]
+    [tableData]
   );
 
   const handleEditRow = useCallback((id) => {
@@ -145,17 +135,27 @@ export default function RentersView() {
         role: 'renter',
         page: page + 1,
         limit: rowsPerPage,
-        search: filters.name,
-        isActive: filters.status === 'all' ? undefined : filters.status === 'active',
-        isVerified:
-          filters.verification === 'all' ? undefined : filters.verification === 'verified',
+        name: filters.name,
       };
+
+      // Map status filter to isActive
+      if (filters.status !== 'all') {
+        params.isActive = filters.status === 'active';
+      }
+
+      // Map verification filter to isVerified
+      if (filters.verification !== 'all') {
+        params.isVerified = filters.verification === 'verified';
+      }
 
       const response = await userService.getUsers(params);
 
+      // Use API response directly, check for array or object
       if (response.success) {
-        setTableData(response.data.users);
-        setPagination(response.data.pagination);
+        setTableData(response.data.users || response.data || []);
+        setPagination(
+          response.data.pagination || response.data.meta || { current: 1, pages: 1, total: 0 }
+        );
       }
     } catch (error) {
       console.error('Failed to fetch users:', error);
@@ -212,11 +212,10 @@ export default function RentersView() {
           />
 
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
-            <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
+            <Table size={table.dense ? 'small' : 'medium'}>
               <TableHeadCustom
                 order={table.order}
                 orderBy={table.orderBy}
-                rowCount={tableData.length}
                 numSelected={table.selected.length}
                 onSort={table.onSort}
                 onSelectAllRows={(checked) =>
@@ -229,7 +228,7 @@ export default function RentersView() {
               />
 
               <TableBody>
-                {dataInPage.map((row) => (
+                {tableData.map((row) => (
                   <RentersTableRow
                     key={row._id}
                     row={row}
@@ -261,7 +260,6 @@ export default function RentersView() {
           />
         </Card>
       </Container>
-
       <ConfirmDialog
         open={confirm.value}
         onClose={confirm.onFalse}
@@ -275,38 +273,4 @@ export default function RentersView() {
       />
     </>
   );
-}
-
-// ----------------------------------------------------------------------
-
-function applyFilter({ inputData, comparator, filters }) {
-  const { name, status, verification } = filters;
-
-  const stabilizedThis = inputData.map((el, index) => [el, index]);
-
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
-
-  inputData = stabilizedThis.map((el) => el[0]);
-
-  if (name) {
-    inputData = inputData.filter(
-      (user) =>
-        `${user.firstName} ${user.lastName}`.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
-        user.email.toLowerCase().indexOf(name.toLowerCase()) !== -1
-    );
-  }
-
-  if (status !== 'all') {
-    inputData = inputData.filter((user) => user.status === status);
-  }
-
-  if (verification !== 'all') {
-    inputData = inputData.filter((user) => user.verification === verification);
-  }
-
-  return inputData;
 }

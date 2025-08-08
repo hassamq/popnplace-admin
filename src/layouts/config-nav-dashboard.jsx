@@ -33,7 +33,7 @@ export const navData = [
     subheader: 'Dashboard',
     items: [
       { title: 'Overview', path: paths.dashboard.root, icon: ICONS.dashboard },
-      { title: 'Analytics', path: paths.dashboard.general.analytics, icon: ICONS.analytics },
+      // { title: 'Analytics', path: paths.dashboard.general.analytics, icon: ICONS.analytics },
     ],
   },
   /**
@@ -93,7 +93,7 @@ export const navData = [
     items: [
       {
         title: 'Space Owners',
-        path: paths.dashboard.owners.list,
+        path: paths.dashboard.owners.list, // now links to hosts page
         icon: ICONS.owners,
         // children: [
         //   { title: 'All Owners', path: paths.dashboard.owners.list },
