@@ -1,20 +1,21 @@
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
-import Checkbox from '@mui/material/Checkbox';
+import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
+import Checkbox from '@mui/material/Checkbox';
 import MenuItem from '@mui/material/MenuItem';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
-import IconButton from '@mui/material/IconButton';
 import ListItemText from '@mui/material/ListItemText';
 import Chip from '@mui/material/Chip';
 import Link from '@mui/material/Link';
 
-import { usePopover, CustomPopover } from 'src/components/custom-popover';
 import { Iconify } from 'src/components/iconify';
-import { ConfirmDialog } from 'src/components/custom-dialog';
+import { userService } from 'src/services/api';
 
 // ----------------------------------------------------------------------
+
+import { useState } from 'react';
 
 export function RentersTableRow({ row, selected, onSelectRow, onDeleteRow, onEditRow }) {
   const {
@@ -30,9 +31,7 @@ export function RentersTableRow({ row, selected, onSelectRow, onDeleteRow, onEdi
     profilePicture,
   } = row;
 
-  const popover = usePopover();
-
-  const confirm = usePopover();
+  const [statusLoading, setStatusLoading] = useState(false);
 
   const name = `${firstName} ${lastName}`;
 
@@ -56,91 +55,71 @@ export function RentersTableRow({ row, selected, onSelectRow, onDeleteRow, onEdi
     return 'Unverified';
   };
 
+  const handleToggleStatus = async () => {
+    setStatusLoading(true);
+    try {
+      await userService.toggleUserStatus(_id);
+      window.location.reload(); // reload to reflect status change
+    } catch (error) {
+      alert(`Failed to update status: ${error?.message || error}`);
+    } finally {
+      setStatusLoading(false);
+    }
+  };
+
   return (
-    <>
-      <TableRow hover selected={selected}>
-        <TableCell padding="checkbox">
-          <Checkbox checked={selected} onClick={onSelectRow} />
-        </TableCell>
-
-        <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-          <Avatar alt={name} src={profilePicture} sx={{ mr: 2 }}>
-            {name.charAt(0)}
-          </Avatar>
-
-          <ListItemText
-            primary={name}
-            secondary={email}
-            primaryTypographyProps={{ typography: 'body2' }}
-            secondaryTypographyProps={{ component: 'span', color: 'text.disabled' }}
-          />
-        </TableCell>
-
-        <TableCell>{email}</TableCell>
-
-        <TableCell>{phoneNumber}</TableCell>
-
-        <TableCell>
-          <Chip label={getStatusLabel(isActive)} color={getStatusColor(isActive)} size="small" />
-        </TableCell>
-
-        <TableCell>
-          <Chip
-            label={getVerificationLabel(emailVerification?.isVerified || isVerified)}
-            color={getVerificationColor(emailVerification?.isVerified || isVerified)}
-            size="small"
-          />
-        </TableCell>
-
-        <TableCell>{new Date(createdAt).toLocaleDateString()}</TableCell>
-
-        <TableCell align="right">
-          <IconButton color={popover.open ? 'primary' : 'default'} onClick={popover.onOpen}>
-            <Iconify icon="eva:more-vertical-fill" />
-          </IconButton>
-        </TableCell>
-      </TableRow>
-
-      <CustomPopover
-        open={popover.open}
-        anchorEl={popover.anchorEl}
-        onClose={popover.onClose}
-        arrow="top-right"
-        sx={{ width: 140 }}
-      >
-        <MenuItem
-          onClick={() => {
-            onEditRow();
-            popover.onClose();
-          }}
-        >
-          <Iconify icon="solar:pen-bold" />
-          Edit
-        </MenuItem>
-
-        <MenuItem
-          onClick={() => {
-            confirm.onTrue();
-            popover.onClose();
-          }}
-          sx={{ color: 'error.main' }}
-        >
-          <Iconify icon="solar:trash-bin-trash-bold" />
-          Delete
-        </MenuItem>
-      </CustomPopover>
-
-      <ConfirmDialog
-        open={confirm.value}
-        onClose={confirm.onFalse}
-        title="Delete"
-        content="Are you sure want to delete?"
-        action={
-          <Button variant="contained" color="error" onClick={onDeleteRow}>
-            Delete
-          </Button>
-        }
-      />
-    </>
+    <TableRow hover selected={selected}>
+      <TableCell padding="checkbox">
+        <Checkbox checked={selected} onClick={onSelectRow} />
+      </TableCell>
+      <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
+        <Avatar alt={name} src={profilePicture} sx={{ mr: 2 }}>
+          {name.charAt(0)}
+        </Avatar>
+        <ListItemText
+          primary={name}
+          secondary={email}
+          primaryTypographyProps={{ typography: 'body2' }}
+          secondaryTypographyProps={{ component: 'span', color: 'text.disabled' }}
+        />
+      </TableCell>
+      <TableCell>{email}</TableCell>
+      <TableCell>{phoneNumber}</TableCell>
+      <TableCell>
+        <Chip
+          label={getStatusLabel(isActive)}
+          color={getStatusColor(isActive)}
+          size="small"
+          sx={{ fontSize: 13, height: 28, minWidth: 90, fontWeight: 500 }}
+        />
+      </TableCell>
+      <TableCell>
+        <Chip
+          label={getVerificationLabel(emailVerification?.isVerified || isVerified)}
+          color={getVerificationColor(emailVerification?.isVerified || isVerified)}
+          size="small"
+          sx={{ fontSize: 13, height: 28, minWidth: 90, fontWeight: 500 }}
+        />
+      </TableCell>
+      <TableCell>{new Date(createdAt).toLocaleDateString()}</TableCell>
+      <TableCell align="right">
+        <Tooltip title={isActive ? 'Deactivate User' : 'Activate User'} placement="top">
+          <span>
+            <IconButton
+              color={isActive ? 'error' : 'success'}
+              onClick={handleToggleStatus}
+              disabled={statusLoading}
+              size="small"
+            >
+              {isActive ? (
+                <Iconify icon="mdi:account-off-outline" width={24} height={24} />
+              ) : (
+                <Iconify icon="mdi:account-check-outline" width={24} height={24} />
+              )}
+            </IconButton>
+          </span>
+        </Tooltip>
+      </TableCell>
+    </TableRow>
   );
 }

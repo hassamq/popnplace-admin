@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react';
+import React, { lazy, Suspense } from 'react';
 import { Outlet } from 'react-router-dom';
 
 import { CONFIG } from 'src/config-global';
@@ -176,6 +176,19 @@ export const dashboardRoutes = [
         children: [
           { element: <RentersListPage />, index: true },
           { path: 'list', element: <RentersListPage /> },
+        ],
+      },
+      {
+        path: 'owners',
+        children: [
+          {
+            element: React.createElement(lazy(() => import('src/pages/dashboard/owners/list'))),
+            index: true,
+          },
+          {
+            path: 'list',
+            element: React.createElement(lazy(() => import('src/pages/dashboard/owners/list'))),
+          },
         ],
       },
       { path: 'file-manager', element: <FileManagerPage /> },

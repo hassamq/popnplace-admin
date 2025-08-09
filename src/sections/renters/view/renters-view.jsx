@@ -68,34 +68,25 @@ const defaultFilters = {
 
 // ----------------------------------------------------------------------
 
-export default function RentersView() {
+export default function RentersView({ userRole = 'renter' }) {
   const theme = useTheme();
-
   const table = useTable();
-
   const confirm = useBoolean();
-
   const popover = usePopover();
-
   const [tableData, setTableData] = useState([]);
-  const [filters, setFilters] = useState(defaultFilters);
+  const [filters, setFilters] = useState({ ...defaultFilters, role: userRole });
   const [loading, setLoading] = useState(false);
   const [pagination, setPagination] = useState({
     current: 1,
     pages: 1,
     total: 0,
   });
-
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(20);
-
-  // Use API data directly, no local filtering/slicing
   const denseHeight = table.dense ? 52 : 72;
-
   const canReset = !Object.values(filters).every(
-    (value) => value === defaultFilters[value] || value === ''
+    (value, key) => value === (key === 'role' ? userRole : defaultFilters[key]) || value === ''
   );
-
   const notFound = (!tableData.length && canReset) || !tableData.length;
 
   const handleFilters = useCallback(
@@ -132,25 +123,18 @@ export default function RentersView() {
     try {
       setLoading(true);
       const params = {
-        role: 'renter',
+        role: userRole,
         page: page + 1,
         limit: rowsPerPage,
         name: filters.name,
       };
-
-      // Map status filter to isActive
       if (filters.status !== 'all') {
         params.isActive = filters.status === 'active';
       }
-
-      // Map verification filter to isVerified
       if (filters.verification !== 'all') {
         params.isVerified = filters.verification === 'verified';
       }
-
       const response = await userService.getUsers(params);
-
-      // Use API response directly, check for array or object
       if (response.success) {
         setTableData(response.data.users || response.data || []);
         setPagination(
@@ -163,7 +147,7 @@ export default function RentersView() {
     } finally {
       setLoading(false);
     }
-  }, [page, rowsPerPage, filters]);
+  }, [page, rowsPerPage, filters, userRole]);
 
   useEffect(() => {
     fetchUsers();
@@ -182,25 +166,26 @@ export default function RentersView() {
     <>
       <Container maxWidth={false}>
         <CustomBreadcrumbs
-          heading="Renters"
+          heading={
+            userRole === 'host' ? 'Space Owner' : userRole === 'tenant' ? 'Tenant' : 'Renter'
+          }
           links={[
             { name: 'Dashboard', href: paths.dashboard.root },
-            { name: 'User Management', href: paths.dashboard.renters.root },
-            { name: 'Renters' },
+            {
+              name: 'User Management',
+              href:
+                userRole === 'host'
+                  ? paths.dashboard.owners.root
+                  : userRole === 'tenant'
+                    ? paths.dashboard.tenants.root
+                    : paths.dashboard.renters.root,
+            },
+            {
+              name:
+                userRole === 'host' ? 'Space Owner' : userRole === 'tenant' ? 'Tenant' : 'Renter',
+            },
           ]}
-          action={
-            <Button
-              component={RouterLink}
-              href={paths.dashboard.renters.new}
-              variant="contained"
-              startIcon={<Iconify icon="mingcute:add-line" />}
-            >
-              New Renter
-            </Button>
-          }
-          sx={{
-            mb: { xs: 3, md: 5 },
-          }}
+          action={null}
         />
 
         <Card>

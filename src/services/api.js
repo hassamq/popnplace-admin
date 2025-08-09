@@ -193,6 +193,20 @@ export const userService = {
       throw error.response?.data || error.message;
     }
   },
+
+  /**
+   * Toggle user active status (Admin only)
+   * @param {string} userId - User ID
+   * @returns {Promise<Object>} API response
+   */
+  toggleUserStatus: async (userId) => {
+    try {
+      const response = await apiClient.put(`/api/v1/auth/users/${userId}/toggle-status`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
 };
 
 // ----------------------------------------------------------------------
