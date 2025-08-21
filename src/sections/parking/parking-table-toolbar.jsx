@@ -92,15 +92,15 @@ export function ParkingTableToolbar({ filters, onFilters }) {
           <InputLabel>Type</InputLabel>
           <Select
             multiple
-            value={filters.type}
+            value={Array.isArray(filters.type) ? filters.type : []}
             onChange={handleFilterType}
             input={<OutlinedInput label="Type" />}
-            renderValue={(selected) => selected.join(', ')}
+            renderValue={(selected) => Array.isArray(selected) ? selected.join(', ') : ''}
             sx={{ textTransform: 'capitalize' }}
           >
             {PARKING_TYPES.map((option) => (
               <MenuItem key={option} value={option}>
-                <Checkbox disableRipple size="small" checked={filters.type.includes(option)} />
+                <Checkbox disableRipple size="small" checked={Array.isArray(filters.type) ? filters.type.includes(option) : false} />
                 {option}
               </MenuItem>
             ))}

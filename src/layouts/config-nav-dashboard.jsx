@@ -21,6 +21,7 @@ const ICONS = {
   reports: <Iconify icon="mdi:file-chart" />,
   communication: <Iconify icon="mdi:message-text" />,
   dashboard: <Iconify icon="mdi:view-dashboard" />,
+  types: <Iconify icon="mdi:format-list-bulleted" />,
 };
 
 // ----------------------------------------------------------------------
@@ -37,13 +38,13 @@ export const navData = [
     ],
   },
   /**
-   * Parking Management
+   * Space Management
    */
   {
-    subheader: 'Parking Management',
+    subheader: 'Storage Management',
     items: [
       {
-        title: 'Parking Spaces',
+        title: 'Storage',
         path: paths.dashboard.parking.list,
         icon: ICONS.parking,
         // children: [
@@ -53,6 +54,11 @@ export const navData = [
         //   { title: 'Pricing Rules', path: paths.dashboard.parking.pricing },
         // ],
       },
+      {
+        title: 'Storage Types',
+        path: paths.dashboard.parking.types,
+        icon: ICONS.types,
+      }
     ],
   },
   /**

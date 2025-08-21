@@ -1,5 +1,35 @@
 import axios from 'axios';
 import { CONFIG } from 'src/config-global';
+// ----------------------------------------------------------------------
+
+export const storageService = {
+  /**
+   * Get all storage spaces with filtering and pagination
+   * @param {Object} params - Query parameters
+   * @param {string} params.category - Filter by storage category
+   * @param {string} params.spaceType - Filter by space type
+   * @param {number} params.minPrice - Minimum monthly price
+   * @param {number} params.maxPrice - Maximum monthly price
+   * @param {string} params.city - Filter by city
+   * @param {string} params.state - Filter by state
+   * @param {string} params.features - Comma-separated features
+   * @param {number} params.latitude - Latitude for location-based search
+   * @param {number} params.longitude - Longitude for location-based search
+   * @param {number} params.radius - Search radius in miles
+   * @param {number} params.page - Page number
+   * @param {number} params.limit - Items per page
+   * @param {string} params.sortBy - Sort by field (e.g., 'newest')
+   * @returns {Promise<Object>} Storage spaces list with pagination
+   */
+  getStorageSpaces: async (params = {}) => {
+    try {
+      const response = await apiClient.get('/api/v1/storage', { params });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+};
 
 // ----------------------------------------------------------------------
 
