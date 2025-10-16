@@ -4,18 +4,19 @@ import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
-import TableBody from '@mui/material/TableBody';
+import Avatar from '@mui/material/Avatar';
 import TableRow from '@mui/material/TableRow';
+import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import ListItemText from '@mui/material/ListItemText';
-import Avatar from '@mui/material/Avatar';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 
+import { fCurrency } from 'src/utils/format-number';
+
 import { _renterList } from 'src/_mock';
 import { DashboardContent } from 'src/layouts/dashboard';
-import { fCurrency } from 'src/utils/format-number';
 
 import { Label } from 'src/components/label';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -112,7 +113,7 @@ export function RenterListView() {
                     <TableCell>{row.totalBookings}</TableCell>
                     <TableCell>{row.activeBookings}</TableCell>
                     <TableCell>{fCurrency(row.monthlySpent)}</TableCell>
-                    <TableCell>⭐ {row.rating.toFixed(1)}</TableCell>
+                    <TableCell>⭐ {row.rating?.toFixed(1) || 'N/A'}</TableCell>
 
                     <TableCell>
                       <Label

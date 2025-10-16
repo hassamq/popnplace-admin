@@ -2,15 +2,15 @@ import { Helmet } from 'react-helmet-async';
 import { CONFIG } from 'src/config-global';
 import { BlankView } from 'src/sections/blank/view';
 
-const metadata = { title: `Owner ${page^} - ${CONFIG.appName}` };
+const metadata = { title: `Add Owner - ${CONFIG.appName}` };
 
-export default function Owner${page^}Page() {
+export default function OwnerNewPage() {
   return (
     <>
       <Helmet>
         <title> {metadata.title}</title>
       </Helmet>
-      <BlankView title="Owner ${page^}" />
+      <BlankView title="Add Owner" />
     </>
   );
 }

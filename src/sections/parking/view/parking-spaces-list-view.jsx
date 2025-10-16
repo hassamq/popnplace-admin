@@ -16,7 +16,6 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { _parkingList } from 'src/_mock/_parking';
 import { DashboardContent } from 'src/layouts/dashboard';
 
-import { Label } from 'src/components/label';
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';

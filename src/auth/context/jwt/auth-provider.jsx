@@ -2,8 +2,9 @@ import { useMemo, useEffect, useCallback } from 'react';
 
 import { useSetState } from 'src/hooks/use-set-state';
 
-import { CONFIG } from 'src/config-global';
 import axios, { endpoints } from 'src/utils/axios';
+
+import { CONFIG } from 'src/config-global';
 
 import { STORAGE_KEY } from './constant';
 import { AuthContext } from '../auth-context';

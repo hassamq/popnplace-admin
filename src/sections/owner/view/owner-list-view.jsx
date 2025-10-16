@@ -4,24 +4,21 @@ import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
-import TableBody from '@mui/material/TableBody';
+import Avatar from '@mui/material/Avatar';
 import TableRow from '@mui/material/TableRow';
-import Checkbox from '@mui/material/Checkbox';
+import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import ListItemText from '@mui/material/ListItemText';
-import Avatar from '@mui/material/Avatar';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 
-import { useBoolean } from 'src/hooks/use-boolean';
+import { fCurrency } from 'src/utils/format-number';
 
 import { _ownerList } from 'src/_mock';
 import { DashboardContent } from 'src/layouts/dashboard';
-import { fCurrency } from 'src/utils/format-number';
 
 import { Label } from 'src/components/label';
-import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
@@ -133,7 +130,7 @@ export function OwnerListView() {
                     <TableCell>{row.totalSpaces}</TableCell>
                     <TableCell>{row.activeSpaces}</TableCell>
                     <TableCell>{fCurrency(row.monthlyRevenue)}</TableCell>
-                    <TableCell>⭐ {row.rating.toFixed(1)}</TableCell>
+                    <TableCell>⭐ {row.rating?.toFixed(1) || 'N/A'}</TableCell>
 
                     <TableCell>
                       <Label
