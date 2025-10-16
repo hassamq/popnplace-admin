@@ -1,0 +1,278 @@
+import { _mock } from './_mock';
+
+// ----------------------------------------------------------------------
+
+export const RENTER_STATUS_OPTIONS = [
+  { value: 'active', label: 'Active' },
+  { value: 'inactive', label: 'Inactive' },
+  { value: 'suspended', label: 'Suspended' },
+  { value: 'blacklisted', label: 'Blacklisted' },
+];
+
+export const BACKGROUND_CHECK_STATUS_OPTIONS = [
+  { value: 'pending', label: 'Pending' },
+  { value: 'passed', label: 'Passed' },
+  { value: 'failed', label: 'Failed' },
+  { value: 'not_required', label: 'Not Required' },
+];
+
+// ----------------------------------------------------------------------
+
+export const _renterList = [...Array(50)].map((_, index) => ({
+  id: _mock.id(index + 200),
+  name: _mock.fullName(index),
+  email: _mock.email(index),
+  phone: _mock.phoneNumber(index),
+  avatarUrl: _mock.image.avatar(index),
+  status: _mock.role(['active', 'inactive', 'suspended', 'blacklisted']),
+  backgroundCheckStatus: _mock.role(['pending', 'passed', 'failed', 'not_required']),
+  totalBookings: _mock.number.nativeL(1, 50),
+  activeBookings: _mock.number.nativeL(0, 5),
+  completedBookings: _mock.number.nativeL(1, 45),
+  cancelledBookings: _mock.number.nativeL(0, 5),
+  totalSpent: _mock.number.price(100, 10000),
+  monthlySpent: _mock.number.price(50, 1000),
+  rating: _mock.number.rating(3, 5),
+  totalReviews: _mock.number.nativeL(0, 30),
+  joinedDate: _mock.time(index),
+  lastBooking: _mock.time(index),
+  address: {
+    street: _mock.fullAddress(index),
+    city: _mock.role(['Amsterdam', 'Rotterdam', 'Utrecht', 'The Hague', 'Eindhoven']),
+    zipCode: `${Math.floor(1000 + Math.random() * 9000)} ${_mock.role(['AB', 'CD', 'EF', 'GH'])}`,
+    country: 'Netherlands',
+  },
+  vehicles: [
+    {
+      make: _mock.role(['Toyota', 'Honda', 'Ford', 'Tesla', 'BMW']),
+      model: _mock.role(['Camry', 'Accord', 'F-150', 'Model 3', 'X5']),
+      licensePlate: `${_mock.role(['ABC', 'XYZ', 'DEF'])}-${Math.floor(1000 + Math.random() * 9000)}`,
+      color: _mock.role(['Black', 'White', 'Silver', 'Blue']),
+    },
+  ],
+  paymentMethods: _mock.number.nativeL(1, 3),
+  verificationStatus: {
+    emailVerified: true,
+    phoneVerified: index % 2 === 0,
+    identityVerified: index % 3 === 0,
+  },
+  preferences: {
+    notifications: true,
+    marketing: index % 2 === 0,
+    newsletter: index % 3 === 0,
+  },
+  createdAt: _mock.time(index),
+  updatedAt: _mock.time(index),
+}));
+
+// Single renter detail
+export const _renter = {
+  id: _mock.id(200),
+  name: 'Jane Doe',
+  email: 'jane.doe@example.com',
+  phone: '+31 6 9876 5432',
+  avatarUrl: _mock.image.avatar(1),
+  status: 'active',
+  backgroundCheckStatus: 'passed',
+  bio: 'Regular parking customer, always punctual and respectful of property.',
+  totalBookings: 32,
+  activeBookings: 2,
+  completedBookings: 28,
+  cancelledBookings: 2,
+  totalSpent: 4850,
+  monthlySpent: 450,
+  yearlySpent: 5400,
+  averageBookingValue: 151.56,
+  rating: 4.8,
+  totalReviews: 18,
+  joinedDate: _mock.time(100),
+  lastBooking: _mock.time(5),
+  address: {
+    street: 'Prinsengracht 456',
+    city: 'Amsterdam',
+    zipCode: '1016 HJ',
+    country: 'Netherlands',
+  },
+  vehicles: [
+    {
+      id: _mock.id(1),
+      make: 'Toyota',
+      model: 'Camry',
+      year: 2022,
+      licensePlate: 'ABC-1234',
+      color: 'Silver',
+      type: 'Sedan',
+      isPrimary: true,
+      registrationDocument: _mock.image.product(1),
+      verified: true,
+    },
+    {
+      id: _mock.id(2),
+      make: 'Honda',
+      model: 'Accord',
+      year: 2020,
+      licensePlate: 'XYZ-5678',
+      color: 'Black',
+      type: 'Sedan',
+      isPrimary: false,
+      registrationDocument: _mock.image.product(2),
+      verified: true,
+    },
+  ],
+  paymentMethods: [
+    {
+      id: _mock.id(1),
+      type: 'credit_card',
+      brand: 'Visa',
+      last4: '4242',
+      expMonth: 12,
+      expYear: 2025,
+      isDefault: true,
+    },
+    {
+      id: _mock.id(2),
+      type: 'paypal',
+      email: 'jane.doe@example.com',
+      isDefault: false,
+    },
+  ],
+  verificationStatus: {
+    emailVerified: true,
+    emailVerifiedDate: _mock.time(100),
+    phoneVerified: true,
+    phoneVerifiedDate: _mock.time(100),
+    identityVerified: true,
+    identityVerifiedDate: _mock.time(95),
+    identityDocument: {
+      type: 'driver_license',
+      number: '****6789',
+      expiryDate: _mock.time(365),
+    },
+  },
+  backgroundCheck: {
+    status: 'passed',
+    checkDate: _mock.time(95),
+    provider: 'VerifyNow',
+    referenceNumber: 'BGC-123456',
+    expiryDate: _mock.time(460),
+    notes: 'All checks passed successfully',
+  },
+  preferences: {
+    notifications: {
+      email: true,
+      sms: true,
+      push: true,
+    },
+    marketing: true,
+    newsletter: true,
+    autoRenewal: false,
+  },
+  recentBookings: [
+    {
+      id: _mock.id(201),
+      bookingNumber: 'BK-1001',
+      spaceName: 'Parking Space 1',
+      location: 'Downtown Business Center',
+      amount: 500,
+      status: 'completed',
+      startDate: _mock.time(10),
+      endDate: _mock.time(5),
+    },
+    {
+      id: _mock.id(202),
+      bookingNumber: 'BK-1015',
+      spaceName: 'Parking Space 5',
+      location: 'Airport Terminal 1',
+      amount: 350,
+      status: 'active',
+      startDate: _mock.time(2),
+      endDate: _mock.time(9),
+    },
+  ],
+  favoriteSpaces: [
+    {
+      id: _mock.id(1),
+      name: 'Parking Space 1',
+      location: 'Downtown Business Center',
+      price: 25,
+      rating: 4.8,
+    },
+    {
+      id: _mock.id(5),
+      name: 'Parking Space 5',
+      location: 'Airport Terminal 1',
+      price: 20,
+      rating: 4.6,
+    },
+  ],
+  reviews: [
+    {
+      id: _mock.id(1),
+      spaceName: 'Parking Space 1',
+      rating: 5,
+      comment: 'Excellent parking space, very clean and secure.',
+      date: _mock.time(10),
+      helpful: 12,
+    },
+    {
+      id: _mock.id(2),
+      spaceName: 'Parking Space 5',
+      rating: 4,
+      comment: 'Good location, slightly far from terminal.',
+      date: _mock.time(20),
+      helpful: 8,
+    },
+  ],
+  statistics: {
+    averageBookingDuration: 4.8,
+    onTimeCheckIn: 96,
+    onTimeCheckOut: 94,
+    cancellationRate: 6,
+    repeatBookingRate: 38,
+  },
+  activityLog: [
+    {
+      id: 1,
+      action: 'Booking Created',
+      details: 'Created booking BK-1015 for Parking Space 5',
+      timestamp: _mock.time(2),
+    },
+    {
+      id: 2,
+      action: 'Payment Made',
+      details: 'Payment of €350 completed',
+      timestamp: _mock.time(2),
+    },
+    {
+      id: 3,
+      action: 'Check-in',
+      details: 'Checked in to Parking Space 5',
+      timestamp: _mock.time(2),
+    },
+  ],
+  createdAt: _mock.time(100),
+  updatedAt: _mock.time(1),
+};
+
+// Background check list
+export const _backgroundCheckList = [...Array(20)].map((_, index) => ({
+  id: _mock.id(index + 600),
+  renterId: _mock.id(index + 200),
+  renterName: _mock.fullName(index),
+  renterEmail: _mock.email(index),
+  status: _mock.role(['pending', 'passed', 'failed', 'not_required']),
+  provider: _mock.role(['VerifyNow', 'CheckMate', 'TrustGuard']),
+  referenceNumber: `BGC-${String(100000 + index).padStart(6, '0')}`,
+  checkDate: _mock.time(index),
+  expiryDate: _mock.time(index + 365),
+  checks: {
+    identity: _mock.role(['passed', 'failed', 'pending']),
+    criminal: _mock.role(['passed', 'failed', 'pending']),
+    credit: _mock.role(['passed', 'failed', 'pending']),
+    employment: _mock.role(['passed', 'failed', 'pending', 'not_applicable']),
+  },
+  notes: index % 5 === 0 ? 'Additional verification required' : '',
+  cost: _mock.number.price(25, 100),
+  createdAt: _mock.time(index),
+  updatedAt: _mock.time(index),
+}));
