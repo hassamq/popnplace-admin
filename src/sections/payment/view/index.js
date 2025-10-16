@@ -1,1 +1,1 @@
-export * from './payment-view';
+export { PaymentListView } from './payment-list-view';

@@ -1,9 +1,10 @@
 import { Navigate } from 'react-router-dom';
 
-import { useAuthContext } from 'src/auth/hooks';
-
 import { CONFIG } from 'src/config-global';
+
 import { SplashScreen } from 'src/components/loading-screen';
+
+import { useAuthContext } from 'src/auth/hooks';
 
 // ----------------------------------------------------------------------
 

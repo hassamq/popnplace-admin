@@ -2,7 +2,7 @@ import { Helmet } from 'react-helmet-async';
 
 import { CONFIG } from 'src/config-global';
 
-import { PaymentView } from 'src/sections/payment/view';
+import { PaymentListView } from 'src/sections/payment/view';
 
 // ----------------------------------------------------------------------
 
@@ -15,7 +15,7 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <PaymentView />
+      <PaymentListView />
     </>
   );
 }

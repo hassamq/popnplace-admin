@@ -3,8 +3,8 @@ import { Navigate, useRoutes } from 'react-router-dom';
 
 import { MainLayout } from 'src/layouts/main';
 
-import { SplashScreen } from 'src/components/loading-screen';
 import { AuthRedirect } from 'src/components/auth-redirect';
+import { SplashScreen } from 'src/components/loading-screen';
 
 import { authRoutes } from './auth';
 import { mainRoutes } from './main';
