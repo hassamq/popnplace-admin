@@ -1,6 +1,24 @@
+// ----------------------------------------------------------------------
+
 import axios from 'axios';
 import { CONFIG } from 'src/config-global';
 // ----------------------------------------------------------------------
+
+export const bookingsService = {
+  /**
+   * Get all bookings with pagination
+   * @param {Object} params - Query parameters (page, limit, filters)
+   * @returns {Promise<Object>} Bookings list with pagination
+   */
+  getBookings: async (params = {}) => {
+    try {
+      const response = await apiClient.get('/api/v1/bookings', { params });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+};
 
 export const storageService = {
   /**

@@ -91,6 +91,10 @@ export const dashboardRoutes = [
       { path: 'analytics', element: <OverviewAnalyticsPage /> },
       { path: 'banking', element: <OverviewBankingPage /> },
       { path: 'booking', element: <OverviewBookingPage /> },
+      {
+        path: 'bookings',
+        children: [{ path: 'list', element: <OverviewBookingPage /> }],
+      },
       { path: 'file', element: <OverviewFilePage /> },
       { path: 'course', element: <OverviewCoursePage /> },
       {
