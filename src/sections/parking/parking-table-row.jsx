@@ -19,50 +19,43 @@ import { useBoolean } from 'src/hooks/use-boolean';
 // ----------------------------------------------------------------------
 
 export default function ParkingTableRow({ row, onViewRow }) {
-  const { name, type, location, price, status, owner, availability } = row;
+  const { image, name, type, location, price, status, availability, id } = row;
   return (
     <TableRow hover>
-      <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-        <Avatar alt={name} src={owner?.avatarUrl} sx={{ mr: 2 }} />
+      <TableCell>
+        <Avatar
+          alt={name}
+          src={image}
+          sx={{ width: 56, height: 56, borderRadius: 1 }}
+          variant="rounded"
+        />
+      </TableCell>
+      <TableCell>
         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-          <Box component="span" sx={{ typography: 'body2', color: 'text.primary' }}>{name}</Box>
+          <Box component="span" sx={{ typography: 'body2', color: 'text.primary' }}>
+            {name}
+          </Box>
+          <Box component="span" sx={{ typography: 'caption', color: 'text.secondary' }}>
+            Space ID: #PS{id}
+          </Box>
         </Box>
       </TableCell>
       <TableCell>
-        <Label
-          variant="soft"
-          color={
-            (type === 'covered' && 'success') ||
-            (type === 'uncovered' && 'warning') ||
-            (type === 'garage' && 'info') ||
-            'default'
-          }
-        >
+        <Label variant="soft" color="info">
           {type}
         </Label>
       </TableCell>
       <TableCell>{location}</TableCell>
-      <TableCell>${price}/hr</TableCell>
+      <TableCell>€{price}/day</TableCell>
       <TableCell>
         <Label variant="soft" color={availability === 'available' ? 'success' : 'error'}>
           {availability}
         </Label>
       </TableCell>
       <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
-        <Label
-          variant="soft"
-          color={
-            (status === 'active' && 'success') ||
-            (status === 'inactive' && 'error') ||
-            (status === 'maintenance' && 'warning') ||
-            'default'
-          }
-        >
-          {status}
-        </Label>
-        <Tooltip title="View">
-          <IconButton color="primary" onClick={onViewRow}>
-            <Iconify icon="eva:eye-fill" />
+        <Tooltip title="View Details">
+          <IconButton onClick={onViewRow}>
+            <Iconify icon="solar:eye-bold" />
           </IconButton>
         </Tooltip>
       </TableCell>

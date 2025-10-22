@@ -1,6 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
 import { storageService } from 'src/services/api';
-
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
@@ -8,15 +7,15 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import TableBody from '@mui/material/TableBody';
 import IconButton from '@mui/material/IconButton';
-
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import Select from '@mui/material/Select';
+import OutlinedInput from '@mui/material/OutlinedInput';
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
-
 import { useBoolean } from 'src/hooks/use-boolean';
-
-// import { _parkingList } from 'src/_mock/_parking';
 import { DashboardContent } from 'src/layouts/dashboard';
-
 import { Label } from 'src/components/label';
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
@@ -33,20 +32,20 @@ import {
   TableSelectedAction,
   TablePaginationCustom,
 } from 'src/components/table';
-
 import ParkingTableRow from '../parking-table-row';
+import StorageDetailsDialog from '../storage-details-dialog';
 import { ParkingTableToolbar } from '../parking-table-toolbar';
 import { ParkingTableFiltersResult } from '../parking-table-filters-result';
-
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'space', label: 'Space' },
+  { id: 'image', label: 'Image', width: 80 },
+  { id: 'space', label: 'Space Name' },
   { id: 'type', label: 'Type' },
   { id: 'location', label: 'Location' },
-  { id: 'price', label: 'Price/Hour' },
-  { id: 'availability', label: 'Status' },
-  { id: 'view', label: 'View' },
+  { id: 'price', label: 'Price/Day' },
+  { id: 'availability', label: 'Availability' },
+  { id: 'action', label: 'Action' },
 ];
 
 const defaultFilters = {
@@ -66,6 +65,8 @@ const defaultFilters = {
 // ----------------------------------------------------------------------
 
 export function StorageListView() {
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [selectedStorageId, setSelectedStorageId] = useState(null);
   const table = useTable();
 
   const router = useRouter();
@@ -105,10 +106,16 @@ export function StorageListView() {
           // Map API data to expected table row format
           const mappedRows = data.data.storageSpaces.map((item) => ({
             id: item.id || item._id,
+            image:
+              item.primaryImage ||
+              (item.images && item.images[0]?.url) ||
+              'https://placehold.co/80x80',
             name: item.title,
-            type: item.spaceType,
-            location: item.address?.city || '',
-            price: item.pricing?.dailyRate || item.pricing?.monthlyRate || '',
+            type: item.storageCategory?.name || item.spaceType || '',
+            location: [item.address?.city, item.address?.state, item.address?.country]
+              .filter(Boolean)
+              .join(', '),
+            price: item.pricing?.dailyRate || '',
             status: item.status,
             availability: item.availability?.isAvailable ? 'available' : 'unavailable',
             owner: {
@@ -137,16 +144,14 @@ export function StorageListView() {
 
   const denseHeight = table.dense ? 56 : 56 + 20;
 
-  const canReset = Object.values(filters).some(
-    (v, i) => {
-      // Don't count default values for page, limit, sortBy, radius
-      const keys = Object.keys(filters);
-      const key = keys[i];
-      if (["page", "limit", "sortBy", "radius"].includes(key)) return false;
-      if (typeof v === "string") return v.trim() !== "";
-      return v !== '' && v !== undefined && v !== null;
-    }
-  );
+  const canReset = Object.values(filters).some((v, i) => {
+    // Don't count default values for page, limit, sortBy, radius
+    const keys = Object.keys(filters);
+    const key = keys[i];
+    if (['page', 'limit', 'sortBy', 'radius'].includes(key)) return false;
+    if (typeof v === 'string') return v.trim() !== '';
+    return v !== '' && v !== undefined && v !== null;
+  });
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
@@ -198,19 +203,21 @@ export function StorageListView() {
     [router]
   );
 
-  const handleViewRow = useCallback(
-    (id) => {
-      router.push(paths.dashboard.parking.details(id));
-    },
-    [router]
-  );
+  const handleViewRow = useCallback((id) => {
+    setSelectedStorageId(id);
+    setDetailsOpen(true);
+  }, []);
 
   return (
     <>
       <DashboardContent>
         <CustomBreadcrumbs
           heading="Storage"
-          links={[{ name: 'Dashboard', href: paths.dashboard.root }, { name: 'Storage', href: paths.dashboard.parking.root }, { name: 'List' }]}
+          links={[
+            { name: 'Dashboard', href: paths.dashboard.root },
+            { name: 'Storage', href: paths.dashboard.parking.root },
+            { name: 'List' },
+          ]}
           action={
             <Button
               variant="contained"
@@ -225,24 +232,7 @@ export function StorageListView() {
 
         <Card>
           <ParkingTableToolbar filters={filters} onFilters={handleFilters} />
-          {/* SortBy Dropdown */}
-          <Box sx={{ mb: 2, mt: 2 }}>
-            <label htmlFor="sortBy">
-              Sort By:&nbsp;
-              <select
-                id="sortBy"
-                value={filters.sortBy}
-                onChange={e => handleFilters('sortBy', e.target.value)}
-                style={{ minWidth: 120, padding: '6px 12px', borderRadius: 4 }}
-              >
-                <option value="price_low">Price Low</option>
-                <option value="price_high">Price High</option>
-                <option value="rating">Rating</option>
-                <option value="distance">Distance</option>
-                <option value="newest">Newest</option>
-              </select>
-            </label>
-          </Box>
+          {/* Removed duplicate Sort By dropdown. Only the one inside the expanded filters remains. */}
 
           {canReset && (
             <ParkingTableFiltersResult
@@ -263,20 +253,14 @@ export function StorageListView() {
                   order={table.order}
                   orderBy={table.orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={dataFiltered.length}
-                  numSelected={table.selected.length}
                   onSort={table.onSort}
-                  onSelectAllRows={(checked) =>
-                    table.onSelectAllRows(
-                      checked,
-                      dataFiltered.map((row) => row.id)
-                    )
-                  }
                 />
 
                 <TableBody>
                   {loading ? (
-                    <tr><td colSpan={TABLE_HEAD.length}>Loading...</td></tr>
+                    <tr>
+                      <td colSpan={TABLE_HEAD.length}>Loading...</td>
+                    </tr>
                   ) : (
                     dataFiltered.map((row) => (
                       <ParkingTableRow
@@ -331,6 +315,12 @@ export function StorageListView() {
             Delete
           </Button>
         }
+      />
+
+      <StorageDetailsDialog
+        open={detailsOpen}
+        onClose={() => setDetailsOpen(false)}
+        storageId={selectedStorageId}
       />
     </>
   );

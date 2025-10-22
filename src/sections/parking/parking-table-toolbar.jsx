@@ -1,15 +1,15 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 
 import Stack from '@mui/material/Stack';
-import MenuItem from '@mui/material/MenuItem';
-import Checkbox from '@mui/material/Checkbox';
-import TextField from '@mui/material/TextField';
 import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
 import FormControl from '@mui/material/FormControl';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import InputAdornment from '@mui/material/InputAdornment';
 import Select from '@mui/material/Select';
+import Button from '@mui/material/Button';
 
 import { Iconify } from 'src/components/iconify';
 
@@ -36,6 +36,7 @@ const STATUS_OPTIONS = [
 // ----------------------------------------------------------------------
 
 export function ParkingTableToolbar({ filters, onFilters }) {
+  const [showFilters, setShowFilters] = useState(false);
   const handleFilterName = useCallback(
     (event) => {
       onFilters('name', event.target.value);
@@ -64,64 +65,85 @@ export function ParkingTableToolbar({ filters, onFilters }) {
     <Stack
       spacing={2}
       alignItems={{ xs: 'flex-end', md: 'center' }}
-      direction={{
-        xs: 'column',
-        md: 'row',
-      }}
-      sx={{
-        p: 2.5,
-        pr: { xs: 2.5, md: 1 },
-      }}
+      direction={{ xs: 'column', md: 'row' }}
+      sx={{ p: 2.5, pr: { xs: 2.5, md: 1 } }}
     >
-      <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>
-        <TextField
-          fullWidth
-          value={filters.name}
-          onChange={handleFilterName}
-          placeholder="Search parking spaces..."
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-              </InputAdornment>
-            ),
-          }}
-        />
+      <Button
+        variant="text"
+        onClick={() => setShowFilters((prev) => !prev)}
+        sx={{ textTransform: 'none', fontWeight: 500 }}
+      >
+        {showFilters ? 'Hide filters' : 'Show filters'}
+      </Button>
 
-        <FormControl sx={{ minWidth: { xs: 120, md: 200 } }}>
-          <InputLabel>Type</InputLabel>
-          <Select
-            multiple
-            value={Array.isArray(filters.type) ? filters.type : []}
-            onChange={handleFilterType}
-            input={<OutlinedInput label="Type" />}
-            renderValue={(selected) => Array.isArray(selected) ? selected.join(', ') : ''}
-            sx={{ textTransform: 'capitalize' }}
-          >
-            {PARKING_TYPES.map((option) => (
-              <MenuItem key={option} value={option}>
-                <Checkbox disableRipple size="small" checked={Array.isArray(filters.type) ? filters.type.includes(option) : false} />
-                {option}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-
-        <FormControl sx={{ minWidth: { xs: 120, md: 200 } }}>
-          <InputLabel>Status</InputLabel>
-          <Select
-            value={filters.status}
-            onChange={handleFilterStatus}
-            input={<OutlinedInput label="Status" />}
-          >
-            {STATUS_OPTIONS.map((option) => (
-              <MenuItem key={option.value} value={option.value}>
-                {option.label}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </Stack>
+      {showFilters && (
+        <Stack spacing={2} sx={{ width: 1 }}>
+          <Stack direction="row" alignItems="center" spacing={2}>
+            <TextField
+              fullWidth
+              value={filters.category}
+              onChange={(e) => onFilters('category', e.target.value)}
+              label="Filter by storage category"
+              placeholder="category"
+            />
+            <TextField
+              fullWidth
+              value={filters.spaceType}
+              onChange={(e) => onFilters('spaceType', e.target.value)}
+              label="Filter by space type"
+              placeholder="spaceType"
+            />
+            <TextField
+              fullWidth
+              type="number"
+              value={filters.minPrice}
+              onChange={(e) => onFilters('minPrice', e.target.value)}
+              label="Minimum monthly price"
+              placeholder="minPrice"
+            />
+          </Stack>
+          <Stack direction="row" alignItems="center" spacing={2}>
+            <TextField
+              fullWidth
+              type="number"
+              value={filters.maxPrice}
+              onChange={(e) => onFilters('maxPrice', e.target.value)}
+              label="Maximum monthly price"
+              placeholder="maxPrice"
+            />
+            <TextField
+              fullWidth
+              value={filters.city}
+              onChange={(e) => onFilters('city', e.target.value)}
+              label="Filter by city"
+              placeholder="city"
+            />
+            <TextField
+              fullWidth
+              value={filters.state}
+              onChange={(e) => onFilters('state', e.target.value)}
+              label="Filter by state"
+              placeholder="state"
+            />
+          </Stack>
+          <FormControl sx={{ minWidth: { xs: 120, md: 200 } }}>
+            <InputLabel id="sortBy-label">Sort By</InputLabel>
+            <Select
+              labelId="sortBy-label"
+              id="sortBy"
+              value={filters.sortBy}
+              onChange={(e) => onFilters('sortBy', e.target.value)}
+              input={<OutlinedInput label="Sort By" />}
+            >
+              <MenuItem value="price_low">Price Low</MenuItem>
+              <MenuItem value="price_high">Price High</MenuItem>
+              <MenuItem value="rating">Rating</MenuItem>
+              <MenuItem value="distance">Distance</MenuItem>
+              <MenuItem value="newest">Newest</MenuItem>
+            </Select>
+          </FormControl>
+        </Stack>
+      )}
     </Stack>
   );
 }

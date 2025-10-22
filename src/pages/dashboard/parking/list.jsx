@@ -15,7 +15,7 @@ export default function ParkingSpacesListPage() {
         <title> {metadata.title}</title>
       </Helmet>
 
-  <StorageListView />
+      <StorageListView />
     </>
   );
 }
