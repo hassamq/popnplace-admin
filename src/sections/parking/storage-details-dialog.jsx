@@ -58,8 +58,17 @@ const StorageDetailsDialog = ({ open, onClose, storageId }) => {
       </Dialog>
     );
   }
-  const imageSrc =
-    storage.primaryImage || (storage.images && storage.images[0]) || PLACEHOLDER_IMAGE;
+  // Prepare all images for gallery
+  let images = [];
+  if (Array.isArray(storage.images) && storage.images.length > 0) {
+    images = storage.images.map((img) => (typeof img === 'string' ? img : img.url)).filter(Boolean);
+  }
+  if (storage.primaryImage && !images.includes(storage.primaryImage)) {
+    images.unshift(storage.primaryImage);
+  }
+  if (images.length === 0) {
+    images = [PLACEHOLDER_IMAGE];
+  }
   // ...existing helper functions and rendering code...
   const formatLocation = () => {
     if (!storage.address) return 'N/A';
@@ -125,14 +134,41 @@ const StorageDetailsDialog = ({ open, onClose, storageId }) => {
       <DialogContent>
         <Box sx={{ display: 'flex', gap: 3, flexDirection: { xs: 'column', md: 'row' } }}>
           <Box>
-            <img
-              src={imageSrc}
-              alt={storage.title}
-              style={{ width: 400, height: 300, objectFit: 'cover', borderRadius: 8 }}
-              onError={(e) => {
-                e.target.src = PLACEHOLDER_IMAGE;
-              }}
-            />
+            {/* Large main image at the top */}
+            <Box sx={{ mb: 2, display: 'flex', justifyContent: 'center' }}>
+              <img
+                src={images[0]}
+                alt={storage.title}
+                style={{ width: 400, height: 300, objectFit: 'cover', borderRadius: 8 }}
+                onError={(e) => {
+                  e.target.src = PLACEHOLDER_IMAGE;
+                }}
+              />
+            </Box>
+            {/* Thumbnails below main image */}
+            {images.length > 1 && (
+              <Box
+                sx={{ display: 'flex', gap: 2, overflowX: 'auto', mb: 2, justifyContent: 'center' }}
+              >
+                {images.slice(1).map((img, idx) => (
+                  <img
+                    key={img + idx}
+                    src={img}
+                    alt={storage.title}
+                    style={{
+                      width: 140,
+                      height: 100,
+                      objectFit: 'cover',
+                      borderRadius: 6,
+                      flexShrink: 0,
+                    }}
+                    onError={(e) => {
+                      e.target.src = PLACEHOLDER_IMAGE;
+                    }}
+                  />
+                ))}
+              </Box>
+            )}
           </Box>
           <Box sx={{ flex: 1 }}>
             <Typography variant="subtitle1" gutterBottom>

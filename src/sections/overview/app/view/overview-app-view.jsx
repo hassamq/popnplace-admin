@@ -179,16 +179,16 @@ export function OverviewAppView() {
   return (
     <DashboardContent maxWidth="xl">
       <Grid container spacing={3}>
-        <Grid xs={12} md={8}>
+        <Grid xs={12} md={12}>
           <AppWelcome
             title={`Welcome back 👋 ${user?.data?.firstName} ${user?.data?.lastName}!`}
             description="Manage your parking spaces and rental properties efficiently with PopnPlace Admin Panel."
-            img={<SeoIllustration hideBackground />}
+            // img={<SeoIllustration hideBackground />}
           />
         </Grid>
-        <Grid xs={12} md={4}>
+        {/* <Grid xs={12} md={4}>
           <AppFeatured list={_appFeatured} />
-        </Grid>
+        </Grid> */}
 
         {/* Modern Analytics Widgets - All Cards, Equal Height */}
         <Grid xs={12}>
