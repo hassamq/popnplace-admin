@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react';
+import React, { lazy, Suspense } from 'react';
 import { Outlet } from 'react-router-dom';
 
 import { CONFIG } from 'src/config-global';
@@ -56,6 +56,8 @@ const TourDetailsPage = lazy(() => import('src/pages/dashboard/tour/details'));
 const TourListPage = lazy(() => import('src/pages/dashboard/tour/list'));
 const TourCreatePage = lazy(() => import('src/pages/dashboard/tour/new'));
 const TourEditPage = lazy(() => import('src/pages/dashboard/tour/edit'));
+// Renters
+const RentersListPage = lazy(() => import('src/pages/dashboard/renters/list'));
 // File manager
 const FileManagerPage = lazy(() => import('src/pages/dashboard/file-manager'));
 // App
@@ -89,6 +91,10 @@ export const dashboardRoutes = [
       { path: 'analytics', element: <OverviewAnalyticsPage /> },
       { path: 'banking', element: <OverviewBankingPage /> },
       { path: 'booking', element: <OverviewBookingPage /> },
+      {
+        path: 'bookings',
+        children: [{ path: 'list', element: <OverviewBookingPage /> }],
+      },
       { path: 'file', element: <OverviewFilePage /> },
       { path: 'course', element: <OverviewCoursePage /> },
       {
@@ -97,6 +103,10 @@ export const dashboardRoutes = [
           { element: <ParkingListPage />, index: true },
           { path: 'list', element: <ParkingListPage /> },
           { path: 'new', element: <ParkingNewPage /> },
+          {
+            path: 'types',
+            element: React.createElement(lazy(() => import('src/pages/dashboard/parking/types'))),
+          },
         ],
       },
       {
@@ -167,6 +177,26 @@ export const dashboardRoutes = [
           { path: ':id', element: <TourDetailsPage /> },
           { path: 'new', element: <TourCreatePage /> },
           { path: ':id/edit', element: <TourEditPage /> },
+        ],
+      },
+      {
+        path: 'renters',
+        children: [
+          { element: <RentersListPage />, index: true },
+          { path: 'list', element: <RentersListPage /> },
+        ],
+      },
+      {
+        path: 'owners',
+        children: [
+          {
+            element: React.createElement(lazy(() => import('src/pages/dashboard/owners/list'))),
+            index: true,
+          },
+          {
+            path: 'list',
+            element: React.createElement(lazy(() => import('src/pages/dashboard/owners/list'))),
+          },
         ],
       },
       { path: 'file-manager', element: <FileManagerPage /> },

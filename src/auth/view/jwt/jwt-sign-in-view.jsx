@@ -5,7 +5,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
-import Alert from '@mui/material/Alert';
 import IconButton from '@mui/material/IconButton';
 import LoadingButton from '@mui/lab/LoadingButton';
 import InputAdornment from '@mui/material/InputAdornment';
@@ -18,10 +17,13 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 import { Iconify } from 'src/components/iconify';
 import { Form, Field } from 'src/components/hook-form';
+import { toast } from 'src/components/snackbar';
 
 import { useAuthContext } from '../../hooks';
 import { FormHead } from '../../components/form-head';
-import { signInWithPassword } from '../../context/jwt';
+import { authService } from '../../../services/api';
+import { setSession } from '../../context/jwt/utils';
+import { STORAGE_KEY } from '../../context/jwt/constant';
 
 // ----------------------------------------------------------------------
 
@@ -43,13 +45,11 @@ export function JwtSignInView() {
 
   const { checkUserSession } = useAuthContext();
 
-  const [errorMsg, setErrorMsg] = useState('');
-
   const password = useBoolean();
 
   const defaultValues = {
-    email: 'demo@minimals.cc',
-    password: '@demo1',
+    email: 'info@popandplace.com',
+    password: '',
   };
 
   const methods = useForm({
@@ -64,13 +64,47 @@ export function JwtSignInView() {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      await signInWithPassword({ email: data.email, password: data.password });
+      // Use the new auth service directly
+      const response = await authService.login({
+        email: data.email,
+        password: data.password,
+      });
+
+      const { accessToken, user } = response;
+
+      if (!accessToken) {
+        throw new Error('Access token not found in response');
+      }
+
+      // Set the session and token
+      setSession(accessToken);
+      localStorage.setItem(STORAGE_KEY, accessToken);
+
+      toast.success('Login successful! Redirecting to dashboard...');
       await checkUserSession?.();
 
-      router.refresh();
+      // Redirect to dashboard after successful login
+      setTimeout(() => {
+        router.push(paths.dashboard.root);
+      }, 1200);
     } catch (error) {
       console.error(error);
-      setErrorMsg(typeof error === 'string' ? error : error.message);
+      let errorMessage = 'Login failed. Please try again.';
+
+      // Handle different error response structures
+      if (typeof error === 'string') {
+        errorMessage = error;
+      } else if (error.message) {
+        errorMessage = error.message;
+      } else if (error.error) {
+        errorMessage = error.error;
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.response?.data?.error) {
+        errorMessage = error.response.data.error;
+      }
+
+      toast.error(errorMessage);
     }
   });
 
@@ -79,7 +113,7 @@ export function JwtSignInView() {
       <Field.Text name="email" label="Email address" InputLabelProps={{ shrink: true }} />
 
       <Box gap={1.5} display="flex" flexDirection="column">
-        <Link
+        {/* <Link
           component={RouterLink}
           href="#"
           variant="body2"
@@ -87,7 +121,7 @@ export function JwtSignInView() {
           sx={{ alignSelf: 'flex-end' }}
         >
           Forgot password?
-        </Link>
+        </Link> */}
 
         <Field.Text
           name="password"
@@ -125,28 +159,15 @@ export function JwtSignInView() {
     <>
       <FormHead
         title="Sign in to your account"
-        description={
-          <>
-            {`Don’t have an account? `}
-            <Link component={RouterLink} href={paths.auth.jwt.signUp} variant="subtitle2">
-              Get started
-            </Link>
-          </>
-        }
+        description="Enter your email and password to sign in to your account."
         sx={{ textAlign: { xs: 'center', md: 'left' } }}
       />
-
+      {/* 
       <Alert severity="info" sx={{ mb: 3 }}>
         Use <strong>{defaultValues.email}</strong>
         {' with password '}
         <strong>{defaultValues.password}</strong>
-      </Alert>
-
-      {!!errorMsg && (
-        <Alert severity="error" sx={{ mb: 3 }}>
-          {errorMsg}
-        </Alert>
-      )}
+      </Alert> */}
 
       <Form methods={methods} onSubmit={onSubmit}>
         {renderForm}

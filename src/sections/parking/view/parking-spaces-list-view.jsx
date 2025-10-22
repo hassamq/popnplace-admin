@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react';
-
+import { useState, useCallback, useEffect } from 'react';
+import { storageService } from 'src/services/api';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
@@ -7,15 +7,15 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import TableBody from '@mui/material/TableBody';
 import IconButton from '@mui/material/IconButton';
-
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import Select from '@mui/material/Select';
+import OutlinedInput from '@mui/material/OutlinedInput';
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
-
 import { useBoolean } from 'src/hooks/use-boolean';
-
-import { _parkingList } from 'src/_mock/_parking';
 import { DashboardContent } from 'src/layouts/dashboard';
-
 import { Label } from 'src/components/label';
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
@@ -32,56 +32,126 @@ import {
   TableSelectedAction,
   TablePaginationCustom,
 } from 'src/components/table';
-
-import { ParkingTableRow } from '../parking-table-row';
+import ParkingTableRow from '../parking-table-row';
+import StorageDetailsDialog from '../storage-details-dialog';
 import { ParkingTableToolbar } from '../parking-table-toolbar';
 import { ParkingTableFiltersResult } from '../parking-table-filters-result';
-
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'name', label: 'Space Name' },
+  { id: 'image', label: 'Image', width: 80 },
+  { id: 'space', label: 'Space Name' },
   { id: 'type', label: 'Type' },
   { id: 'location', label: 'Location' },
-  { id: 'price', label: 'Price/Hour' },
-  { id: 'status', label: 'Status' },
+  { id: 'price', label: 'Price/Day' },
   { id: 'availability', label: 'Availability' },
-  { id: '', width: 88 },
+  { id: 'action', label: 'Action' },
 ];
 
 const defaultFilters = {
-  name: '',
-  type: [],
-  status: 'all',
+  category: '',
+  spaceType: '',
+  minPrice: '',
+  maxPrice: '',
+  city: '',
+  state: '',
+  features: '',
+  latitude: '',
+  longitude: '',
+  radius: 25,
+  sortBy: 'newest',
 };
 
 // ----------------------------------------------------------------------
 
-export function ParkingSpacesListView() {
+export function StorageListView() {
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [selectedStorageId, setSelectedStorageId] = useState(null);
   const table = useTable();
 
   const router = useRouter();
 
   const confirm = useBoolean();
 
-  const [tableData, setTableData] = useState(_parkingList);
+  const [tableData, setTableData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [totalCount, setTotalCount] = useState(0);
 
   const [filters, setFilters] = useState(defaultFilters);
+  // Fetch storage data from API
+  useEffect(() => {
+    async function fetchStorage() {
+      setLoading(true);
+      try {
+        // Map filters to API params
+        const params = {
+          category: filters.category || undefined,
+          spaceType: filters.spaceType || undefined,
+          minPrice: filters.minPrice || undefined,
+          maxPrice: filters.maxPrice || undefined,
+          city: filters.city || undefined,
+          state: filters.state || undefined,
+          features: filters.features || undefined,
+          latitude: filters.latitude || undefined,
+          longitude: filters.longitude || undefined,
+          radius: filters.radius || 25,
+          page: table.page + 1,
+          limit: table.rowsPerPage,
+          sortBy: filters.sortBy || 'newest',
+        };
+        const data = await storageService.getStorageSpaces(params);
+        console.log('API Response:', data);
+        // Try to find the correct data key
+        if (Array.isArray(data?.data?.storageSpaces)) {
+          // Map API data to expected table row format
+          const mappedRows = data.data.storageSpaces.map((item) => ({
+            id: item.id || item._id,
+            image:
+              item.primaryImage ||
+              (item.images && item.images[0]?.url) ||
+              'https://placehold.co/80x80',
+            name: item.title,
+            type: item.storageCategory?.name || item.spaceType || '',
+            location: [item.address?.city, item.address?.state, item.address?.country]
+              .filter(Boolean)
+              .join(', '),
+            price: item.pricing?.dailyRate || '',
+            status: item.status,
+            availability: item.availability?.isAvailable ? 'available' : 'unavailable',
+            owner: {
+              avatarUrl: item.host?.profilePicture || '',
+              name: `${item.host?.firstName ?? ''} ${item.host?.lastName ?? ''}`.trim(),
+            },
+          }));
+          setTableData(mappedRows);
+          setTotalCount(data.data.pagination?.total || mappedRows.length);
+        } else {
+          setTableData([]);
+          setTotalCount(0);
+        }
+      } catch (err) {
+        console.error('API Error:', err);
+        setTableData([]);
+      }
+      setLoading(false);
+    }
+    fetchStorage();
+  }, [filters, table.page, table.rowsPerPage]);
 
-  const dataFiltered = applyFilter({
-    inputData: tableData,
-    comparator: getComparator(table.order, table.orderBy),
-    filters,
-  });
-
-  const dataInPage = dataFiltered.slice(
-    table.page * table.rowsPerPage,
-    table.page * table.rowsPerPage + table.rowsPerPage
-  );
+  // No local filtering, data is filtered by API
+  const dataFiltered = Array.isArray(tableData) ? tableData : [];
+  const dataInPage = Array.isArray(tableData) ? tableData : [];
 
   const denseHeight = table.dense ? 56 : 56 + 20;
 
-  const canReset = !!filters.name || filters.type.length > 0 || filters.status !== 'all';
+  const canReset = Object.values(filters).some((v, i) => {
+    // Don't count default values for page, limit, sortBy, radius
+    const keys = Object.keys(filters);
+    const key = keys[i];
+    if (['page', 'limit', 'sortBy', 'radius'].includes(key)) return false;
+    if (typeof v === 'string') return v.trim() !== '';
+    return v !== '' && v !== undefined && v !== null;
+  });
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
@@ -133,37 +203,36 @@ export function ParkingSpacesListView() {
     [router]
   );
 
-  const handleViewRow = useCallback(
-    (id) => {
-      router.push(paths.dashboard.parking.details(id));
-    },
-    [router]
-  );
+  const handleViewRow = useCallback((id) => {
+    setSelectedStorageId(id);
+    setDetailsOpen(true);
+  }, []);
 
   return (
     <>
       <DashboardContent>
         <CustomBreadcrumbs
-          heading="Parking Spaces"
+          heading="Storage"
           links={[
             { name: 'Dashboard', href: paths.dashboard.root },
-            { name: 'Parking Spaces', href: paths.dashboard.parking.root },
+            { name: 'Storage', href: paths.dashboard.parking.root },
             { name: 'List' },
           ]}
-          action={
-            <Button
-              variant="contained"
-              startIcon={<Iconify icon="mingcute:add-line" />}
-              onClick={() => router.push(paths.dashboard.parking.new)}
-            >
-              Add New Space
-            </Button>
-          }
+          // action={
+          //   <Button
+          //     variant="contained"
+          //     startIcon={<Iconify icon="mingcute:add-line" />}
+          //     onClick={() => router.push(paths.dashboard.parking.new)}
+          //   >
+          //     Add New Storage
+          //   </Button>
+          // }
           sx={{ mb: { xs: 3, md: 5 } }}
         />
 
         <Card>
           <ParkingTableToolbar filters={filters} onFilters={handleFilters} />
+          {/* Removed duplicate Sort By dropdown. Only the one inside the expanded filters remains. */}
 
           {canReset && (
             <ParkingTableFiltersResult
@@ -176,24 +245,7 @@ export function ParkingSpacesListView() {
           )}
 
           <Box sx={{ position: 'relative' }}>
-            <TableSelectedAction
-              dense={table.dense}
-              numSelected={table.selected.length}
-              rowCount={dataFiltered.length}
-              onSelectAllRows={(checked) =>
-                table.onSelectAllRows(
-                  checked,
-                  dataFiltered.map((row) => row.id)
-                )
-              }
-              action={
-                <Tooltip title="Delete">
-                  <IconButton color="primary" onClick={confirm.onTrue}>
-                    <Iconify icon="solar:trash-bin-trash-bold" />
-                  </IconButton>
-                </Tooltip>
-              }
-            />
+            {/* Removed TableSelectedAction and bulk actions */}
 
             <Scrollbar>
               <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
@@ -201,34 +253,23 @@ export function ParkingSpacesListView() {
                   order={table.order}
                   orderBy={table.orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={dataFiltered.length}
-                  numSelected={table.selected.length}
                   onSort={table.onSort}
-                  onSelectAllRows={(checked) =>
-                    table.onSelectAllRows(
-                      checked,
-                      dataFiltered.map((row) => row.id)
-                    )
-                  }
                 />
 
                 <TableBody>
-                  {dataFiltered
-                    .slice(
-                      table.page * table.rowsPerPage,
-                      table.page * table.rowsPerPage + table.rowsPerPage
-                    )
-                    .map((row) => (
+                  {loading ? (
+                    <tr>
+                      <td colSpan={TABLE_HEAD.length}>Loading...</td>
+                    </tr>
+                  ) : (
+                    dataFiltered.map((row) => (
                       <ParkingTableRow
                         key={row.id}
                         row={row}
-                        selected={table.selected.includes(row.id)}
-                        onSelectRow={() => table.onSelectRow(row.id)}
-                        onDeleteRow={() => handleDeleteRow(row.id)}
-                        onEditRow={() => handleEditRow(row.id)}
                         onViewRow={() => handleViewRow(row.id)}
                       />
-                    ))}
+                    ))
+                  )}
 
                   <TableEmptyRows
                     height={denseHeight}
@@ -242,7 +283,7 @@ export function ParkingSpacesListView() {
           </Box>
 
           <TablePaginationCustom
-            count={dataFiltered.length}
+            count={totalCount}
             page={table.page}
             rowsPerPage={table.rowsPerPage}
             onPageChange={table.onChangePage}
@@ -274,6 +315,12 @@ export function ParkingSpacesListView() {
             Delete
           </Button>
         }
+      />
+
+      <StorageDetailsDialog
+        open={detailsOpen}
+        onClose={() => setDetailsOpen(false)}
+        storageId={selectedStorageId}
       />
     </>
   );

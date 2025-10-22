@@ -16,9 +16,9 @@ export function AppWelcome({ title, description, action, img, sx, ...other }) {
         ...bgGradient({
           color: `to right, ${varAlpha(
             theme.vars.palette.grey['900Channel'],
-            0.88
-          )} 0%, ${theme.vars.palette.grey[900]} 75%`,
-          imgUrl: `${CONFIG.assetsDir}/assets/background/background-5.webp`,
+            0.2
+          )} 0%, ${theme.vars.palette.grey[900]} 95%`,
+          imgUrl: `${CONFIG.assetsDir}/assets/background/bg.png`,
         }),
         pt: 5,
         pb: 5,
@@ -43,14 +43,14 @@ export function AppWelcome({ title, description, action, img, sx, ...other }) {
           display: 'flex',
           flex: '1 1 auto',
           flexDirection: 'column',
-          alignItems: { xs: 'center', md: 'flex-start' },
+          alignItems: { xs: 'center', md: 'center' },
         }}
       >
         <Typography variant="h4" sx={{ whiteSpace: 'pre-line', mb: 1 }}>
           {title}
         </Typography>
 
-        <Typography variant="body2" sx={{ opacity: 0.64, maxWidth: 360, ...(action && { mb: 3 }) }}>
+        <Typography variant="body2" sx={{ opacity: 0.64, maxWidth: 760, ...(action && { mb: 3 }) }}>
           {description}
         </Typography>
 

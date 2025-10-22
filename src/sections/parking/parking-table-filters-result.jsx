@@ -40,30 +40,7 @@ export function ParkingTableFiltersResult({
       </Box>
 
       <Stack flexGrow={1} spacing={1} direction="row" flexWrap="wrap" alignItems="center">
-        {filters.status !== 'all' && (
-          <Block label="Status:">
-            <Chip
-              size="small"
-              label={filters.status}
-              onDelete={handleRemoveStatus}
-              deleteIcon={<Iconify icon="mingcute:close-line" />}
-            />
-          </Block>
-        )}
-
-        {!!filters.type.length && (
-          <Block label="Type:">
-            {filters.type.map((item) => (
-              <Chip
-                key={item}
-                label={item}
-                size="small"
-                onDelete={() => handleRemoveType(item)}
-                deleteIcon={<Iconify icon="mingcute:close-line" />}
-              />
-            ))}
-          </Block>
-        )}
+        {/* Removed status and type filter chips since those filters are no longer present */}
 
         {!!filters.name && (
           <Block label="Keyword:">

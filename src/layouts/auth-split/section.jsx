@@ -17,7 +17,7 @@ export function Section({
   layoutQuery,
   methods,
   title = 'Manage the job',
-  imgUrl = `${CONFIG.assetsDir}/assets/illustrations/illustration-dashboard.webp`,
+  imgUrl = `${CONFIG.assetsDir}/assets/illustrations/login.webp`,
   subtitle = 'More effectively with optimized workflows.',
   ...other
 }) {
@@ -63,12 +63,12 @@ export function Section({
         )}
       </div>
 
-      <Box
+      {/* <Box
         component="img"
         alt="Dashboard illustration"
         src={imgUrl}
         sx={{ width: 1, aspectRatio: '4/3', objectFit: 'cover' }}
-      />
+      /> */}
 
       {!!methods?.length && method && (
         <Box component="ul" gap={2} display="flex">

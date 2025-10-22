@@ -34,19 +34,7 @@ export function TableHeadCustom({
   return (
     <TableHead sx={sx}>
       <TableRow>
-        {onSelectAllRows && (
-          <TableCell padding="checkbox">
-            <Checkbox
-              indeterminate={!!numSelected && numSelected < rowCount}
-              checked={!!rowCount && numSelected === rowCount}
-              onChange={(event) => onSelectAllRows(event.target.checked)}
-              inputProps={{
-                name: 'select-all-rows',
-                'aria-label': 'select all rows',
-              }}
-            />
-          </TableCell>
-        )}
+        {/* Checkbox logic removed */}
 
         {headLabel.map((headCell) => (
           <TableCell

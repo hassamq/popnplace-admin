@@ -2,7 +2,7 @@ import { Helmet } from 'react-helmet-async';
 
 import { CONFIG } from 'src/config-global';
 
-import { ParkingSpacesListView } from 'src/sections/parking/view';
+import { StorageListView } from 'src/sections/parking/view';
 
 // ----------------------------------------------------------------------
 
@@ -15,7 +15,7 @@ export default function ParkingSpacesListPage() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <ParkingSpacesListView />
+      <StorageListView />
     </>
   );
 }
