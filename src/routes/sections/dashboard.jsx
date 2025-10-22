@@ -99,6 +99,10 @@ export const dashboardRoutes = [
           { element: <ParkingListPage />, index: true },
           { path: 'list', element: <ParkingListPage /> },
           { path: 'new', element: <ParkingNewPage /> },
+          {
+            path: 'types',
+            element: React.createElement(lazy(() => import('src/pages/dashboard/parking/types'))),
+          },
         ],
       },
       {

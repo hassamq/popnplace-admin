@@ -4,6 +4,102 @@ import { CONFIG } from 'src/config-global';
 
 export const storageService = {
   /**
+   * Create a new storage category
+   * @param {Object} data - Category data
+   * @returns {Promise<Object>} Created category
+   */
+  createStorageCategory: async (data) => {
+    try {
+      const response = await apiClient.post('/api/v1/storage/categories', data);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  /**
+   * Update a storage category
+   * @param {string} id - Category ID
+   * @param {Object} data - Updated data
+   * @returns {Promise<Object>} Updated category
+   */
+  updateStorageCategory: async (id, data) => {
+    try {
+      const response = await apiClient.put(`/api/v1/storage/categories/${id}`, data);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  /**
+   * Delete a storage category
+   * @param {string} id - Category ID
+   * @returns {Promise<Object>} Deletion response
+   */
+  deleteStorageCategory: async (id) => {
+    try {
+      const response = await apiClient.delete(`/api/v1/storage/categories/${id}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  /**
+   * Add a subcategory to a storage category
+   * @param {string} categoryId - Category ID
+   * @param {Object} data - Subcategory data
+   * @returns {Promise<Object>} Created subcategory
+   */
+  addSubcategory: async (categoryId, data) => {
+    try {
+      const response = await apiClient.post(
+        `/api/v1/storage/categories/${categoryId}/subcategory`,
+        data
+      );
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  /**
+   * Update a subcategory
+   * @param {string} categoryId - Category ID
+   * @param {string} subcategoryId - Subcategory ID
+   * @param {Object} data - Updated data
+   * @returns {Promise<Object>} Updated subcategory
+   */
+  updateSubcategory: async (categoryId, subcategoryId, data) => {
+    try {
+      const response = await apiClient.put(
+        `/api/v1/storage/categories/${categoryId}/subcategory/${subcategoryId}`,
+        data
+      );
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  /**
+   * Delete a subcategory
+   * @param {string} categoryId - Category ID
+   * @param {string} subcategoryId - Subcategory ID
+   * @returns {Promise<Object>} Deletion response
+   */
+  deleteSubcategory: async (categoryId, subcategoryId) => {
+    try {
+      const response = await apiClient.delete(
+        `/api/v1/storage/categories/${categoryId}/subcategory/${subcategoryId}`
+      );
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+  /**
    * Get all storage spaces with filtering and pagination
    * @param {Object} params - Query parameters
    * @param {string} params.category - Filter by storage category
@@ -24,6 +120,18 @@ export const storageService = {
   getStorageSpaces: async (params = {}) => {
     try {
       const response = await apiClient.get('/api/v1/storage', { params });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+  /**
+   * Get all storage categories (types)
+   * @returns {Promise<Object>} Storage categories list
+   */
+  getStorageCategories: async () => {
+    try {
+      const response = await apiClient.get('/api/v1/storage/categories');
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
