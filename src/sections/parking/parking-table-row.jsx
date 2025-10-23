@@ -58,6 +58,7 @@ export default function ParkingTableRow({ row, onViewRow, onStatusChange }) {
             <Iconify icon="solar:eye-bold" />
           </IconButton>
         </Tooltip>
+        {/* Admin actions by status */}
         {status === 'pending_approval' && (
           <>
             <Tooltip title="Mark as Active">
@@ -77,6 +78,36 @@ export default function ParkingTableRow({ row, onViewRow, onStatusChange }) {
               </IconButton>
             </Tooltip>
           </>
+        )}
+        {status === 'admin-rejected' && (
+          <Tooltip title="Mark as Active">
+            <IconButton
+              color="success"
+              onClick={() => onStatusChange && onStatusChange(id, 'active')}
+            >
+              <Iconify icon="solar:check-circle-bold" />
+            </IconButton>
+          </Tooltip>
+        )}
+        {status === 'active' && (
+          <Tooltip title="Set Inactive">
+            <IconButton
+              color="warning"
+              onClick={() => onStatusChange && onStatusChange(id, 'inactive')}
+            >
+              <Iconify icon="solar:pause-circle-bold" />
+            </IconButton>
+          </Tooltip>
+        )}
+        {status === 'inactive' && (
+          <Tooltip title="Mark as Active">
+            <IconButton
+              color="success"
+              onClick={() => onStatusChange && onStatusChange(id, 'active')}
+            >
+              <Iconify icon="solar:check-circle-bold" />
+            </IconButton>
+          </Tooltip>
         )}
       </TableCell>
     </TableRow>

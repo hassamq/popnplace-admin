@@ -26,6 +26,9 @@ export default function StorageTypesPage() {
   const [types, setTypes] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Filter state
+  const [filters, setFilters] = useState({ name: '', type: '' });
+
   useEffect(() => {
     async function fetchTypes() {
       setLoading(true);
@@ -48,6 +51,24 @@ export default function StorageTypesPage() {
   const [subDialogOpen, setSubDialogOpen] = useState(false);
   const [editSub, setEditSub] = useState(null); // null for add, object for edit
   const [subForm, setSubForm] = useState({ title: '', description: '' });
+
+  // Filtering logic
+  const filteredTypes = types.filter((type) => {
+    const nameMatch = filters.name ? type.name.toLowerCase().includes(filters.name.toLowerCase()) : true;
+    const typeMatch = filters.type ? type.type.toLowerCase().includes(filters.type.toLowerCase()) : true;
+    return nameMatch && typeMatch;
+  });
+
+  const isFiltered = filters.name.trim() !== '' || filters.type.trim() !== '';
+
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleResetFilters = () => {
+    setFilters({ name: '', type: '' });
+  };
 
   const handleOpenAdd = () => {
     setEditType(null);
@@ -165,16 +186,30 @@ export default function StorageTypesPage() {
         heading="Storage Types"
         links={[{ name: 'Dashboard', href: paths.dashboard.root }, { name: 'Storage Types' }]}
         sx={{ mb: { xs: 3, md: 5 } }}
-        // action={
-        //   <Button
-        //     variant="contained"
-        //     startIcon={<Iconify icon="mingcute:add-line" />}
-        //     onClick={handleOpenAdd}
-        //   >
-        //     Add New Storage Type
-        //   </Button>
-        // }
       />
+      {/* Filter Bar */}
+      <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 2 }}>
+        <TextField
+          label="Filter by Name"
+          name="name"
+          value={filters.name}
+          onChange={handleFilterChange}
+          size="small"
+        />
+        <TextField
+          label="Filter by Type"
+          name="type"
+          value={filters.type}
+          onChange={handleFilterChange}
+          size="small"
+        />
+        {isFiltered && (
+          <Button onClick={handleResetFilters} color="inherit" size="small">Clear</Button>
+        )}
+        {isFiltered && (
+          <Typography variant="body2" sx={{ ml: 1, color: 'text.secondary' }}>{filteredTypes.length} results</Typography>
+        )}
+      </Box>
       <Card>
         <TableContainer>
           <Table>
@@ -197,14 +232,14 @@ export default function StorageTypesPage() {
                     Loading...
                   </TableCell>
                 </TableRow>
-              ) : types.length === 0 ? (
+              ) : filteredTypes.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} align="center">
                     No storage types found.
                   </TableCell>
                 </TableRow>
               ) : (
-                types.map((type) => (
+                filteredTypes.map((type) => (
                   <TableRow key={type._id || type.id}>
                     <TableCell align="center">
                       <Iconify icon="mdi:format-list-bulleted" sx={{ color: 'text.secondary' }} />

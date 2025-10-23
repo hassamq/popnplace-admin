@@ -49,17 +49,10 @@ const TABLE_HEAD = [
 ];
 
 const defaultFilters = {
-  category: '',
-  spaceType: '',
-  minPrice: '',
-  maxPrice: '',
-  city: '',
-  state: '',
-  features: '',
-  latitude: '',
-  longitude: '',
-  radius: 25,
-  sortBy: 'newest',
+  status: '', // draft, active, inactive, pending_approval, suspended, archived
+  verified: '', // true/false
+  page: 1,
+  limit: 20,
 };
 
 // ----------------------------------------------------------------------
@@ -79,64 +72,56 @@ export function StorageListView() {
 
   const [filters, setFilters] = useState(defaultFilters);
   // Fetch storage data from API
-  useEffect(() => {
-    async function fetchStorage() {
-      setLoading(true);
-      try {
-        // Map filters to API params
-        const params = {
-          category: filters.category || undefined,
-          spaceType: filters.spaceType || undefined,
-          minPrice: filters.minPrice || undefined,
-          maxPrice: filters.maxPrice || undefined,
-          city: filters.city || undefined,
-          state: filters.state || undefined,
-          features: filters.features || undefined,
-          latitude: filters.latitude || undefined,
-          longitude: filters.longitude || undefined,
-          radius: filters.radius || 25,
-          page: table.page + 1,
-          limit: table.rowsPerPage,
-          sortBy: filters.sortBy || 'newest',
-        };
-        const data = await adminStorageService.getAdminStorageSpaces(params);
-        console.log('API Response:', data);
-        // Try to find the correct data key
-        if (Array.isArray(data?.data?.storageSpaces)) {
-          // Map API data to expected table row format
-          const mappedRows = data.data.storageSpaces.map((item) => ({
-            id: item.id || item._id,
-            image:
-              item.primaryImage ||
-              (item.images && item.images[0]?.url) ||
-              'https://placehold.co/80x80',
-            name: item.title,
-            type: item.storageCategory?.name || item.spaceType || '',
-            location: [item.address?.city, item.address?.state, item.address?.country]
-              .filter(Boolean)
-              .join(', '),
-            price: item.pricing?.dailyRate || '',
-            status: item.status,
-            availability: item.status,
-            owner: {
-              avatarUrl: item.host?.profilePicture || '',
-              name: `${item.host?.firstName ?? ''} ${item.host?.lastName ?? ''}`.trim(),
-            },
-          }));
-          setTableData(mappedRows);
-          setTotalCount(data.data.pagination?.total || mappedRows.length);
-        } else {
-          setTableData([]);
-          setTotalCount(0);
-        }
-      } catch (err) {
-        console.error('API Error:', err);
+  const fetchStorage = useCallback(async () => {
+    setLoading(true);
+    try {
+      // Map only admin filters to API params
+      const params = {
+        status: filters.status || undefined,
+        verified: filters.verified !== '' ? filters.verified : undefined,
+        page: table.page + 1,
+        limit: table.rowsPerPage,
+      };
+      const data = await adminStorageService.getAdminStorageSpaces(params);
+      console.log('API Response:', data);
+      // Try to find the correct data key
+      if (Array.isArray(data?.data?.storageSpaces)) {
+        // Map API data to expected table row format
+        const mappedRows = data.data.storageSpaces.map((item) => ({
+          id: item.id || item._id,
+          image:
+            item.primaryImage ||
+            (item.images && item.images[0]?.url) ||
+            'https://placehold.co/80x80',
+          name: item.title,
+          type: item.storageCategory?.name || item.spaceType || '',
+          location: [item.address?.city, item.address?.state, item.address?.country]
+            .filter(Boolean)
+            .join(', '),
+          price: item.pricing?.dailyRate || '',
+          status: item.status,
+          availability: item.status,
+          owner: {
+            avatarUrl: item.host?.profilePicture || '',
+            name: `${item.host?.firstName ?? ''} ${item.host?.lastName ?? ''}`.trim(),
+          },
+        }));
+        setTableData(mappedRows);
+        setTotalCount(data.data.pagination?.total || mappedRows.length);
+      } else {
         setTableData([]);
+        setTotalCount(0);
       }
-      setLoading(false);
+    } catch (err) {
+      console.error('API Error:', err);
+      setTableData([]);
     }
-    fetchStorage();
+    setLoading(false);
   }, [filters, table.page, table.rowsPerPage]);
+
+  useEffect(() => {
+    fetchStorage();
+  }, [fetchStorage]);
 
   // No local filtering, data is filtered by API
   const dataFiltered = Array.isArray(tableData) ? tableData : [];
@@ -208,68 +193,39 @@ export function StorageListView() {
     setDetailsOpen(true);
   }, []);
 
-  // Handler for status change
   const handleStatusChange = async (id, newStatus) => {
     try {
       await storageService.updateStorageStatus(id, newStatus);
       toast.success(`Status updated to ${newStatus}`);
-      // Refresh data
-      setTableData((prev) =>
-        prev.map((row) => (row.id === id ? { ...row, status: newStatus } : row))
-      );
+      await fetchStorage();
     } catch (err) {
       toast.error('Failed to update status');
     }
   };
 
+
+
   return (
     <>
       <DashboardContent>
-        <CustomBreadcrumbs
-          heading="Storage"
-          links={[
-            { name: 'Dashboard', href: paths.dashboard.root },
-            { name: 'Storage', href: paths.dashboard.parking.root },
-            { name: 'List' },
-          ]}
-          // action={
-          //   <Button
-          //     variant="contained"
-          //     startIcon={<Iconify icon="mingcute:add-line" />}
-          //     onClick={() => router.push(paths.dashboard.parking.new)}
-          //   >
-          //     Add New Storage
-          //   </Button>
-          // }
-          sx={{ mb: { xs: 3, md: 5 } }}
-        />
-
         <Card>
-          <ParkingTableToolbar filters={filters} onFilters={handleFilters} />
-          {/* Removed duplicate Sort By dropdown. Only the one inside the expanded filters remains. */}
-
-          {canReset && (
-            <ParkingTableFiltersResult
-              filters={filters}
-              onFilters={handleFilters}
-              onResetFilters={handleResetFilters}
-              results={dataFiltered.length}
-              sx={{ p: 2.5, pt: 0 }}
-            />
-          )}
-
-          <Box sx={{ position: 'relative' }}>
-            {/* Removed TableSelectedAction and bulk actions */}
-
+          <ParkingTableToolbar
+            filters={filters}
+            onFilters={handleFilters}
+            onResetFilters={handleResetFilters}
+            isFiltered={canReset}
+          />
+          <ParkingTableFiltersResult
+            filters={filters}
+            onFilters={handleFilters}
+            onResetFilters={handleResetFilters}
+            results={dataFiltered.length}
+            sx={{ p: 2, pt: 0 }}
+          />
+          <Box>
             <Scrollbar>
-              <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
-                <TableHeadCustom
-                  order={table.order}
-                  orderBy={table.orderBy}
-                  headLabel={TABLE_HEAD}
-                  onSort={table.onSort}
-                />
-
+              <Table>
+                <TableHeadCustom headLabel={TABLE_HEAD} rowCount={tableData.length} numSelected={table.selected.length} />
                 <TableBody>
                   {loading ? (
                     <tr>
@@ -285,18 +241,15 @@ export function StorageListView() {
                       />
                     ))
                   )}
-
                   <TableEmptyRows
                     height={denseHeight}
                     emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
                   />
-
                   <TableNoData notFound={notFound} />
                 </TableBody>
               </Table>
             </Scrollbar>
           </Box>
-
           <TablePaginationCustom
             count={totalCount}
             page={table.page}
@@ -308,7 +261,6 @@ export function StorageListView() {
           />
         </Card>
       </DashboardContent>
-
       <ConfirmDialog
         open={confirm.value}
         onClose={confirm.onFalse}
@@ -331,7 +283,6 @@ export function StorageListView() {
           </Button>
         }
       />
-
       <StorageDetailsDialog
         open={detailsOpen}
         onClose={() => setDetailsOpen(false)}

@@ -36,114 +36,42 @@ const STATUS_OPTIONS = [
 // ----------------------------------------------------------------------
 
 export function ParkingTableToolbar({ filters, onFilters }) {
-  const [showFilters, setShowFilters] = useState(false);
-  const handleFilterName = useCallback(
-    (event) => {
-      onFilters('name', event.target.value);
-    },
-    [onFilters]
-  );
-
-  const handleFilterType = useCallback(
-    (event) => {
-      onFilters(
-        'type',
-        typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
-      );
-    },
-    [onFilters]
-  );
-
-  const handleFilterStatus = useCallback(
-    (event) => {
-      onFilters('status', event.target.value);
-    },
-    [onFilters]
-  );
-
   return (
     <Stack
       spacing={2}
-      alignItems={{ xs: 'flex-end', md: 'center' }}
       direction={{ xs: 'column', md: 'row' }}
       sx={{ p: 2.5, pr: { xs: 2.5, md: 1 } }}
     >
-      <Button
-        variant="text"
-        onClick={() => setShowFilters((prev) => !prev)}
-        sx={{ textTransform: 'none', fontWeight: 500 }}
-      >
-        {showFilters ? 'Hide filters' : 'Show filters'}
-      </Button>
-
-      {showFilters && (
-        <Stack spacing={2} sx={{ width: 1 }}>
-          <Stack direction="row" alignItems="center" spacing={2}>
-            <TextField
-              fullWidth
-              value={filters.category}
-              onChange={(e) => onFilters('category', e.target.value)}
-              label="Filter by storage category"
-              placeholder="category"
-            />
-            <TextField
-              fullWidth
-              value={filters.spaceType}
-              onChange={(e) => onFilters('spaceType', e.target.value)}
-              label="Filter by space type"
-              placeholder="spaceType"
-            />
-            <TextField
-              fullWidth
-              type="number"
-              value={filters.minPrice}
-              onChange={(e) => onFilters('minPrice', e.target.value)}
-              label="Minimum monthly price"
-              placeholder="minPrice"
-            />
-          </Stack>
-          <Stack direction="row" alignItems="center" spacing={2}>
-            <TextField
-              fullWidth
-              type="number"
-              value={filters.maxPrice}
-              onChange={(e) => onFilters('maxPrice', e.target.value)}
-              label="Maximum monthly price"
-              placeholder="maxPrice"
-            />
-            <TextField
-              fullWidth
-              value={filters.city}
-              onChange={(e) => onFilters('city', e.target.value)}
-              label="Filter by city"
-              placeholder="city"
-            />
-            <TextField
-              fullWidth
-              value={filters.state}
-              onChange={(e) => onFilters('state', e.target.value)}
-              label="Filter by state"
-              placeholder="state"
-            />
-          </Stack>
-          <FormControl sx={{ minWidth: { xs: 120, md: 200 } }}>
-            <InputLabel id="sortBy-label">Sort By</InputLabel>
-            <Select
-              labelId="sortBy-label"
-              id="sortBy"
-              value={filters.sortBy}
-              onChange={(e) => onFilters('sortBy', e.target.value)}
-              input={<OutlinedInput label="Sort By" />}
-            >
-              <MenuItem value="price_low">Price Low</MenuItem>
-              <MenuItem value="price_high">Price High</MenuItem>
-              <MenuItem value="rating">Rating</MenuItem>
-              <MenuItem value="distance">Distance</MenuItem>
-              <MenuItem value="newest">Newest</MenuItem>
-            </Select>
-          </FormControl>
-        </Stack>
-      )}
+      <FormControl sx={{ minWidth: 160 }} size="small">
+        <InputLabel id="status-label">Status</InputLabel>
+        <Select
+          labelId="status-label"
+          value={filters.status}
+          onChange={(e) => onFilters('status', e.target.value)}
+          input={<OutlinedInput label="Status" />}
+        >
+          <MenuItem value="">All</MenuItem>
+          <MenuItem value="draft">Draft</MenuItem>
+          <MenuItem value="active">Active</MenuItem>
+          <MenuItem value="inactive">Inactive</MenuItem>
+          <MenuItem value="pending_approval">Pending Approval</MenuItem>
+          <MenuItem value="suspended">Suspended</MenuItem>
+          <MenuItem value="archived">Archived</MenuItem>
+        </Select>
+      </FormControl>
+      <FormControl sx={{ minWidth: 160 }} size="small">
+        <InputLabel id="verified-label">Verified</InputLabel>
+        <Select
+          labelId="verified-label"
+          value={filters.verified}
+          onChange={(e) => onFilters('verified', e.target.value)}
+          input={<OutlinedInput label="Verified" />}
+        >
+          <MenuItem value="">All</MenuItem>
+          <MenuItem value="true">Verified</MenuItem>
+          <MenuItem value="false">Not Verified</MenuItem>
+        </Select>
+      </FormControl>
     </Stack>
   );
 }
