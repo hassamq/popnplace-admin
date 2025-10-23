@@ -155,6 +155,38 @@ export const storageService = {
       throw error.response?.data || error.message;
     }
   },
+
+  /**
+   * Update storage space status
+   * @param {string} id - Storage space ID
+   * @param {string} status - New status (enum)
+   * @returns {Promise<Object>} Updated storage space
+   */
+  updateStorageStatus: async (id, status) => {
+    try {
+      const response = await apiClient.put(`/api/v1/storage/${id}/status`, { status });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+};
+
+// Admin: Get all storage spaces for admin review
+/**
+ * Get all storage spaces for admin review (with filters)
+ * @param {Object} params - Query parameters (status, category, city, etc.)
+ * @returns {Promise<Object>} Storage spaces list with pagination
+ */
+export const adminStorageService = {
+  getAdminStorageSpaces: async (params = {}) => {
+    try {
+      const response = await apiClient.get('/api/v1/admin/storage-spaces', { params });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
 };
 
 // ----------------------------------------------------------------------

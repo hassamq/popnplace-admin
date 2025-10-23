@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { storageService } from 'src/services/api';
+import { adminStorageService, storageService } from 'src/services/api';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
@@ -99,7 +99,7 @@ export function StorageListView() {
           limit: table.rowsPerPage,
           sortBy: filters.sortBy || 'newest',
         };
-        const data = await storageService.getStorageSpaces(params);
+        const data = await adminStorageService.getAdminStorageSpaces(params);
         console.log('API Response:', data);
         // Try to find the correct data key
         if (Array.isArray(data?.data?.storageSpaces)) {
@@ -117,7 +117,7 @@ export function StorageListView() {
               .join(', '),
             price: item.pricing?.dailyRate || '',
             status: item.status,
-            availability: item.availability?.isAvailable ? 'available' : 'unavailable',
+            availability: item.status,
             owner: {
               avatarUrl: item.host?.profilePicture || '',
               name: `${item.host?.firstName ?? ''} ${item.host?.lastName ?? ''}`.trim(),
@@ -208,6 +208,20 @@ export function StorageListView() {
     setDetailsOpen(true);
   }, []);
 
+  // Handler for status change
+  const handleStatusChange = async (id, newStatus) => {
+    try {
+      await storageService.updateStorageStatus(id, newStatus);
+      toast.success(`Status updated to ${newStatus}`);
+      // Refresh data
+      setTableData((prev) =>
+        prev.map((row) => (row.id === id ? { ...row, status: newStatus } : row))
+      );
+    } catch (err) {
+      toast.error('Failed to update status');
+    }
+  };
+
   return (
     <>
       <DashboardContent>
@@ -267,6 +281,7 @@ export function StorageListView() {
                         key={row.id}
                         row={row}
                         onViewRow={() => handleViewRow(row.id)}
+                        onStatusChange={handleStatusChange}
                       />
                     ))
                   )}
