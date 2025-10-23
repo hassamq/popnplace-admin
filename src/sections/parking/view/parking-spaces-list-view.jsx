@@ -203,11 +203,27 @@ export function StorageListView() {
     }
   };
 
-
-
   return (
     <>
       <DashboardContent>
+        <CustomBreadcrumbs
+          heading="Storage"
+          links={[
+            { name: 'Dashboard', href: paths.dashboard.root },
+            { name: 'Storage', href: paths.dashboard.parking.root },
+            { name: 'List' },
+          ]}
+          // action={
+          //   <Button
+          //     variant="contained"
+          //     startIcon={<Iconify icon="mingcute:add-line" />}
+          //     onClick={() => router.push(paths.dashboard.parking.new)}
+          //   >
+          //     Add New Storage
+          //   </Button>
+          // }
+          sx={{ mb: { xs: 3, md: 5 } }}
+        />
         <Card>
           <ParkingTableToolbar
             filters={filters}
@@ -215,17 +231,23 @@ export function StorageListView() {
             onResetFilters={handleResetFilters}
             isFiltered={canReset}
           />
-          <ParkingTableFiltersResult
-            filters={filters}
-            onFilters={handleFilters}
-            onResetFilters={handleResetFilters}
-            results={dataFiltered.length}
-            sx={{ p: 2, pt: 0 }}
-          />
+          {canReset && (
+            <ParkingTableFiltersResult
+              filters={filters}
+              onFilters={handleFilters}
+              onResetFilters={handleResetFilters}
+              results={dataFiltered.length}
+              sx={{ p: 2, pt: 0 }}
+            />
+          )}
           <Box>
             <Scrollbar>
               <Table>
-                <TableHeadCustom headLabel={TABLE_HEAD} rowCount={tableData.length} numSelected={table.selected.length} />
+                <TableHeadCustom
+                  headLabel={TABLE_HEAD}
+                  rowCount={tableData.length}
+                  numSelected={table.selected.length}
+                />
                 <TableBody>
                   {loading ? (
                     <tr>

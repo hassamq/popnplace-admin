@@ -54,8 +54,12 @@ export default function StorageTypesPage() {
 
   // Filtering logic
   const filteredTypes = types.filter((type) => {
-    const nameMatch = filters.name ? type.name.toLowerCase().includes(filters.name.toLowerCase()) : true;
-    const typeMatch = filters.type ? type.type.toLowerCase().includes(filters.type.toLowerCase()) : true;
+    const nameMatch = filters.name
+      ? type.name.toLowerCase().includes(filters.name.toLowerCase())
+      : true;
+    const typeMatch = filters.type
+      ? type.type.toLowerCase().includes(filters.type.toLowerCase())
+      : true;
     return nameMatch && typeMatch;
   });
 
@@ -204,10 +208,14 @@ export default function StorageTypesPage() {
           size="small"
         />
         {isFiltered && (
-          <Button onClick={handleResetFilters} color="inherit" size="small">Clear</Button>
+          <Button onClick={handleResetFilters} color="inherit" size="small">
+            Clear
+          </Button>
         )}
         {isFiltered && (
-          <Typography variant="body2" sx={{ ml: 1, color: 'text.secondary' }}>{filteredTypes.length} results</Typography>
+          <Typography variant="body2" sx={{ ml: 1, color: 'text.secondary' }}>
+            {filteredTypes.length} results
+          </Typography>
         )}
       </Box>
       <Card>
