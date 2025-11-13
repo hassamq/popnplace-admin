@@ -430,4 +430,68 @@ export const dashboardService = {
 
 // ----------------------------------------------------------------------
 
+export const paymentService = {
+  /**
+   * Get all payment records with pagination and filtering
+   * @param {Object} params - Query parameters (page, limit, filters, sorting)
+   * @returns {Promise<Object>} Payment records with pagination and summary
+   */
+  getPayments: async (params = {}) => {
+    try {
+      const response = await apiClient.get('/api/v1/admin/payments', { params });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  /**
+   * Get single payment details
+   * @param {string} id - Payment ID
+   * @returns {Promise<Object>} Payment details
+   */
+  getPaymentById: async (id) => {
+    try {
+      const response = await apiClient.get(`/api/v1/admin/payments/${id}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  /**
+   * Delete a payment record
+   * @param {string} id - Payment ID
+   * @returns {Promise<Object>} Deletion response
+   */
+  deletePayment: async (id) => {
+    try {
+      const response = await apiClient.delete(`/api/v1/admin/payments/${id}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  /**
+   * Export payment records as CSV or PDF
+   * @param {Object} params - Query parameters for filtering
+   * @param {string} format - Export format (csv or pdf)
+   * @returns {Promise<Blob>} Exported file
+   */
+  exportPayments: async (params = {}, format = 'csv') => {
+    try {
+      const response = await apiClient.get(`/api/v1/admin/payments/export/${format}`, {
+        params,
+        responseType: 'blob',
+      });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+};
+
+// ----------------------------------------------------------------------
+
 export default apiClient;

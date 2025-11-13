@@ -21,6 +21,9 @@ const OverviewCoursePage = lazy(() => import('src/pages/dashboard/course'));
 // Parking
 const ParkingListPage = lazy(() => import('src/pages/dashboard/parking/list'));
 const ParkingNewPage = lazy(() => import('src/pages/dashboard/parking/new'));
+// Payments
+const PaymentListPage = lazy(() => import('src/pages/dashboard/payments/list'));
+const PaymentDetailsPage = lazy(() => import('src/pages/dashboard/payments/details'));
 // Product
 const ProductDetailsPage = lazy(() => import('src/pages/dashboard/product/details'));
 const ProductListPage = lazy(() => import('src/pages/dashboard/product/list'));
@@ -107,6 +110,14 @@ export const dashboardRoutes = [
             path: 'types',
             element: React.createElement(lazy(() => import('src/pages/dashboard/parking/types'))),
           },
+        ],
+      },
+      {
+        path: 'payments',
+        children: [
+          { element: <PaymentListPage />, index: true },
+          { path: 'list', element: <PaymentListPage /> },
+          { path: ':id', element: <PaymentDetailsPage /> },
         ],
       },
       {
