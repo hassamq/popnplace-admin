@@ -16,7 +16,7 @@ import { userService } from 'src/services/api';
 
 import { useState } from 'react';
 
-export function RentersTableRow({ row, onDeleteRow, onEditRow }) {
+export function RentersTableRow({ row, userRole = 'renter', onDeleteRow, onEditRow }) {
   const {
     _id,
     firstName,
@@ -28,6 +28,7 @@ export function RentersTableRow({ row, onDeleteRow, onEditRow }) {
     emailVerification,
     createdAt,
     profilePicture,
+    stripeConnectAccount,
   } = row;
 
   const [statusLoading, setStatusLoading] = useState(false);
@@ -52,6 +53,32 @@ export function RentersTableRow({ row, onDeleteRow, onEditRow }) {
   const getVerificationLabel = (verified) => {
     if (verified) return 'Verified';
     return 'Unverified';
+  };
+
+  const getPaymentStatusColor = (status) => {
+    switch (status) {
+      case 'connected':
+        return 'success';
+      case 'incomplete':
+        return 'warning';
+      case 'pending':
+        return 'info';
+      default:
+        return 'default';
+    }
+  };
+
+  const getPaymentStatusLabel = (status) => {
+    switch (status) {
+      case 'connected':
+        return 'Connected';
+      case 'incomplete':
+        return 'Incomplete';
+      case 'pending':
+        return 'Pending';
+      default:
+        return 'Unknown';
+    }
   };
 
   const handleToggleStatus = async () => {
@@ -97,6 +124,16 @@ export function RentersTableRow({ row, onDeleteRow, onEditRow }) {
           sx={{ fontSize: 13, height: 28, minWidth: 90, fontWeight: 500 }}
         />
       </TableCell>
+      {userRole === 'host' && (
+        <TableCell>
+          <Chip
+            label={getPaymentStatusLabel(stripeConnectAccount?.status)}
+            color={getPaymentStatusColor(stripeConnectAccount?.status)}
+            size="small"
+            sx={{ fontSize: 13, height: 28, minWidth: 90, fontWeight: 500 }}
+          />
+        </TableCell>
+      )}
       <TableCell>{new Date(createdAt).toLocaleDateString()}</TableCell>
       <TableCell align="right">
         <Tooltip title={isActive ? 'Deactivate User' : 'Activate User'} placement="top">
