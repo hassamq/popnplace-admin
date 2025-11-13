@@ -12,8 +12,6 @@ import Link from '@mui/material/Link';
 import { Iconify } from 'src/components/iconify';
 import { userService } from 'src/services/api';
 
-// ----------------------------------------------------------------------
-
 import { useState } from 'react';
 
 export function RentersTableRow({ row, userRole = 'renter', onDeleteRow, onEditRow }) {
