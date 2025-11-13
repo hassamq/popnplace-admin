@@ -201,14 +201,7 @@ export default function RentersView({ userRole = 'renter' }) {
               <TableHeadCustom
                 order={table.order}
                 orderBy={table.orderBy}
-                numSelected={table.selected.length}
                 onSort={table.onSort}
-                onSelectAllRows={(checked) =>
-                  table.onSelectAllRows(
-                    checked,
-                    tableData.map((row) => row._id)
-                  )
-                }
                 headLabel={TABLE_HEAD}
               />
 
@@ -217,8 +210,6 @@ export default function RentersView({ userRole = 'renter' }) {
                   <RentersTableRow
                     key={row._id}
                     row={row}
-                    selected={table.selected.includes(row._id)}
-                    onSelectRow={() => table.onSelectRow(row._id)}
                     onDeleteRow={() => handleDeleteRow(row._id)}
                     onEditRow={() => handleEditRow(row._id)}
                   />

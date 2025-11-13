@@ -2,7 +2,6 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
-import Checkbox from '@mui/material/Checkbox';
 import MenuItem from '@mui/material/MenuItem';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
@@ -17,7 +16,7 @@ import { userService } from 'src/services/api';
 
 import { useState } from 'react';
 
-export function RentersTableRow({ row, selected, onSelectRow, onDeleteRow, onEditRow }) {
+export function RentersTableRow({ row, onDeleteRow, onEditRow }) {
   const {
     _id,
     firstName,
@@ -68,10 +67,7 @@ export function RentersTableRow({ row, selected, onSelectRow, onDeleteRow, onEdi
   };
 
   return (
-    <TableRow hover selected={selected}>
-      <TableCell padding="checkbox">
-        <Checkbox checked={selected} onClick={onSelectRow} />
-      </TableCell>
+    <TableRow hover>
       <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
         <Avatar alt={name} src={profilePicture} sx={{ mr: 2 }}>
           {name.charAt(0)}
