@@ -18,7 +18,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 // ----------------------------------------------------------------------
 
-export default function ParkingTableRow({ row, onViewRow }) {
+export default function ParkingTableRow({ row, onViewRow, onStatusChange }) {
   const { image, name, type, location, price, status, availability, id } = row;
   return (
     <TableRow hover>
@@ -58,6 +58,57 @@ export default function ParkingTableRow({ row, onViewRow }) {
             <Iconify icon="solar:eye-bold" />
           </IconButton>
         </Tooltip>
+        {/* Admin actions by status */}
+        {status === 'pending_approval' && (
+          <>
+            <Tooltip title="Mark as Active">
+              <IconButton
+                color="success"
+                onClick={() => onStatusChange && onStatusChange(id, 'active')}
+              >
+                <Iconify icon="solar:check-circle-bold" />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Reject (Admin)">
+              <IconButton
+                color="error"
+                onClick={() => onStatusChange && onStatusChange(id, 'admin-rejected')}
+              >
+                <Iconify icon="solar:close-circle-bold" />
+              </IconButton>
+            </Tooltip>
+          </>
+        )}
+        {status === 'admin-rejected' && (
+          <Tooltip title="Mark as Active">
+            <IconButton
+              color="success"
+              onClick={() => onStatusChange && onStatusChange(id, 'active')}
+            >
+              <Iconify icon="solar:check-circle-bold" />
+            </IconButton>
+          </Tooltip>
+        )}
+        {status === 'active' && (
+          <Tooltip title="Set Inactive">
+            <IconButton
+              color="warning"
+              onClick={() => onStatusChange && onStatusChange(id, 'inactive')}
+            >
+              <Iconify icon="solar:pause-circle-bold" />
+            </IconButton>
+          </Tooltip>
+        )}
+        {status === 'inactive' && (
+          <Tooltip title="Mark as Active">
+            <IconButton
+              color="success"
+              onClick={() => onStatusChange && onStatusChange(id, 'active')}
+            >
+              <Iconify icon="solar:check-circle-bold" />
+            </IconButton>
+          </Tooltip>
+        )}
       </TableCell>
     </TableRow>
   );

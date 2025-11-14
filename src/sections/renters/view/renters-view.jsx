@@ -49,16 +49,6 @@ import { RentersTableToolbar } from '../renters-table-toolbar';
 
 // ----------------------------------------------------------------------
 
-const TABLE_HEAD = [
-  { id: 'name', label: 'Name' },
-  { id: 'email', label: 'Email' },
-  { id: 'phone', label: 'Phone' },
-  { id: 'status', label: 'Status' },
-  { id: 'verification', label: 'Verification' },
-  { id: 'createdAt', label: 'Created' },
-  { id: 'actions', label: 'Actions', align: 'right' },
-];
-
 const defaultFilters = {
   name: '',
   role: 'renter',
@@ -69,6 +59,29 @@ const defaultFilters = {
 // ----------------------------------------------------------------------
 
 export default function RentersView({ userRole = 'renter' }) {
+  const getTableHead = () => {
+    const baseHead = [
+      { id: 'name', label: 'Name' },
+      { id: 'email', label: 'Email' },
+      { id: 'phone', label: 'Phone' },
+      { id: 'status', label: 'Status' },
+      { id: 'verification', label: 'Verification' },
+    ];
+
+    // Add payment status only for hosts
+    if (userRole === 'host') {
+      baseHead.push({ id: 'paymentStatus', label: 'Payment Status' });
+    }
+
+    baseHead.push(
+      { id: 'createdAt', label: 'Created' },
+      { id: 'actions', label: 'Actions', align: 'right' }
+    );
+
+    return baseHead;
+  };
+
+  const TABLE_HEAD = getTableHead();
   const theme = useTheme();
   const table = useTable();
   const confirm = useBoolean();
@@ -201,14 +214,7 @@ export default function RentersView({ userRole = 'renter' }) {
               <TableHeadCustom
                 order={table.order}
                 orderBy={table.orderBy}
-                numSelected={table.selected.length}
                 onSort={table.onSort}
-                onSelectAllRows={(checked) =>
-                  table.onSelectAllRows(
-                    checked,
-                    tableData.map((row) => row._id)
-                  )
-                }
                 headLabel={TABLE_HEAD}
               />
 
@@ -217,8 +223,7 @@ export default function RentersView({ userRole = 'renter' }) {
                   <RentersTableRow
                     key={row._id}
                     row={row}
-                    selected={table.selected.includes(row._id)}
-                    onSelectRow={() => table.onSelectRow(row._id)}
+                    userRole={userRole}
                     onDeleteRow={() => handleDeleteRow(row._id)}
                     onEditRow={() => handleEditRow(row._id)}
                   />

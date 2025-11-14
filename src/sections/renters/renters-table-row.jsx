@@ -2,7 +2,6 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
-import Checkbox from '@mui/material/Checkbox';
 import MenuItem from '@mui/material/MenuItem';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
@@ -13,11 +12,9 @@ import Link from '@mui/material/Link';
 import { Iconify } from 'src/components/iconify';
 import { userService } from 'src/services/api';
 
-// ----------------------------------------------------------------------
-
 import { useState } from 'react';
 
-export function RentersTableRow({ row, selected, onSelectRow, onDeleteRow, onEditRow }) {
+export function RentersTableRow({ row, userRole = 'renter', onDeleteRow, onEditRow }) {
   const {
     _id,
     firstName,
@@ -29,6 +26,7 @@ export function RentersTableRow({ row, selected, onSelectRow, onDeleteRow, onEdi
     emailVerification,
     createdAt,
     profilePicture,
+    stripeConnectAccount,
   } = row;
 
   const [statusLoading, setStatusLoading] = useState(false);
@@ -55,6 +53,32 @@ export function RentersTableRow({ row, selected, onSelectRow, onDeleteRow, onEdi
     return 'Unverified';
   };
 
+  const getPaymentStatusColor = (status) => {
+    switch (status) {
+      case 'connected':
+        return 'success';
+      case 'incomplete':
+        return 'warning';
+      case 'pending':
+        return 'info';
+      default:
+        return 'default';
+    }
+  };
+
+  const getPaymentStatusLabel = (status) => {
+    switch (status) {
+      case 'connected':
+        return 'Connected';
+      case 'incomplete':
+        return 'Incomplete';
+      case 'pending':
+        return 'Pending';
+      default:
+        return 'Unknown';
+    }
+  };
+
   const handleToggleStatus = async () => {
     setStatusLoading(true);
     try {
@@ -68,10 +92,7 @@ export function RentersTableRow({ row, selected, onSelectRow, onDeleteRow, onEdi
   };
 
   return (
-    <TableRow hover selected={selected}>
-      <TableCell padding="checkbox">
-        <Checkbox checked={selected} onClick={onSelectRow} />
-      </TableCell>
+    <TableRow hover>
       <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
         <Avatar alt={name} src={profilePicture} sx={{ mr: 2 }}>
           {name.charAt(0)}
@@ -101,6 +122,16 @@ export function RentersTableRow({ row, selected, onSelectRow, onDeleteRow, onEdi
           sx={{ fontSize: 13, height: 28, minWidth: 90, fontWeight: 500 }}
         />
       </TableCell>
+      {userRole === 'host' && (
+        <TableCell>
+          <Chip
+            label={getPaymentStatusLabel(stripeConnectAccount?.status)}
+            color={getPaymentStatusColor(stripeConnectAccount?.status)}
+            size="small"
+            sx={{ fontSize: 13, height: 28, minWidth: 90, fontWeight: 500 }}
+          />
+        </TableCell>
+      )}
       <TableCell>{new Date(createdAt).toLocaleDateString()}</TableCell>
       <TableCell align="right">
         <Tooltip title={isActive ? 'Deactivate User' : 'Activate User'} placement="top">

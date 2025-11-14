@@ -155,6 +155,38 @@ export const storageService = {
       throw error.response?.data || error.message;
     }
   },
+
+  /**
+   * Update storage space status
+   * @param {string} id - Storage space ID
+   * @param {string} status - New status (enum)
+   * @returns {Promise<Object>} Updated storage space
+   */
+  updateStorageStatus: async (id, status) => {
+    try {
+      const response = await apiClient.put(`/api/v1/storage/${id}/status`, { status });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+};
+
+// Admin: Get all storage spaces for admin review
+/**
+ * Get all storage spaces for admin review (with filters)
+ * @param {Object} params - Query parameters (status, category, city, etc.)
+ * @returns {Promise<Object>} Storage spaces list with pagination
+ */
+export const adminStorageService = {
+  getAdminStorageSpaces: async (params = {}) => {
+    try {
+      const response = await apiClient.get('/api/v1/admin/storage-spaces', { params });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
 };
 
 // ----------------------------------------------------------------------
@@ -389,6 +421,70 @@ export const dashboardService = {
   getAnalytics: async (period = 'week') => {
     try {
       const response = await apiClient.get(`/api/v1/admin/analytics?period=${period}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+};
+
+// ----------------------------------------------------------------------
+
+export const paymentService = {
+  /**
+   * Get all payment records with pagination and filtering
+   * @param {Object} params - Query parameters (page, limit, filters, sorting)
+   * @returns {Promise<Object>} Payment records with pagination and summary
+   */
+  getPayments: async (params = {}) => {
+    try {
+      const response = await apiClient.get('/api/v1/admin/payments', { params });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  /**
+   * Get single payment details
+   * @param {string} id - Payment ID
+   * @returns {Promise<Object>} Payment details
+   */
+  getPaymentById: async (id) => {
+    try {
+      const response = await apiClient.get(`/api/v1/admin/payments/${id}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  /**
+   * Delete a payment record
+   * @param {string} id - Payment ID
+   * @returns {Promise<Object>} Deletion response
+   */
+  deletePayment: async (id) => {
+    try {
+      const response = await apiClient.delete(`/api/v1/admin/payments/${id}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  /**
+   * Export payment records as CSV or PDF
+   * @param {Object} params - Query parameters for filtering
+   * @param {string} format - Export format (csv or pdf)
+   * @returns {Promise<Blob>} Exported file
+   */
+  exportPayments: async (params = {}, format = 'csv') => {
+    try {
+      const response = await apiClient.get(`/api/v1/admin/payments/export/${format}`, {
+        params,
+        responseType: 'blob',
+      });
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
