@@ -115,24 +115,54 @@ export function PaymentListView() {
   const fetchPayments = useCallback(async () => {
     setLoading(true);
     try {
-      const params = {
-        page: table.page + 1,
-        limit: table.rowsPerPage,
-        ...(filters.status && { status: filters.status }),
-        ...(filters.paymentType && { paymentType: filters.paymentType }),
-        ...(filters.method && { method: filters.method }),
-        ...(filters.startDate && { startDate: filters.startDate.toISOString() }),
-        ...(filters.endDate && { endDate: filters.endDate.toISOString() }),
-        sortBy: filters.sortBy,
-        sortOrder: filters.sortOrder,
-      };
+      // Use the new Stripe transactions endpoint
+      const response = await paymentService.fetchStripeTransactions();
 
-      const response = await paymentService.getPayments(params);
+      if (response?.transactions) {
+        // Map transactions to table data
+        let transactions = response.transactions || [];
 
-      if (response?.data) {
-        setTableData(response.data || []);
-        setSummary(response.summary || null);
-        setTotalCount(response.pagination?.total || 0);
+        // Apply client-side filtering
+        if (filters.status) {
+          const statusMap = {
+            completed: 'succeeded',
+            pending: 'requires_payment_method',
+          };
+          const stripeStatus = statusMap[filters.status] || filters.status;
+          transactions = transactions.filter((t) => t.stripe?.status === stripeStatus);
+        }
+
+        if (filters.method) {
+          transactions = transactions.filter(
+            (t) =>
+              t.paymentMethod?.type === filters.method ||
+              (filters.method === 'stripe' && !t.paymentMethod)
+          );
+        }
+
+        // Apply client-side pagination
+        const startIndex = table.page * table.rowsPerPage;
+        const endIndex = startIndex + table.rowsPerPage;
+        const paginatedData = transactions.slice(startIndex, endIndex);
+
+        setTableData(paginatedData);
+        setTotalCount(transactions.length);
+
+        // Calculate summary from all transactions
+        const transactionSummary = {
+          totalAmount: transactions.reduce((sum, t) => sum + (t.financial?.renterPaid || 0), 0),
+          totalProcessingFees: transactions.reduce(
+            (sum, t) => sum + (t.financial?.platformFee || 0),
+            0
+          ),
+          totalServiceFees: 0,
+          totalHostAmount: transactions.reduce((sum, t) => sum + (t.financial?.hostAmount || 0), 0),
+          completedPayments: transactions.filter((t) => t.stripe?.status === 'succeeded').length,
+          failedPayments: transactions.filter(
+            (t) => t.stripe?.status === 'requires_payment_method' || t.stripe?.status === 'canceled'
+          ).length,
+        };
+        setSummary(transactionSummary);
       }
     } catch (error) {
       console.error('Error fetching payments:', error);
@@ -223,11 +253,11 @@ export function PaymentListView() {
               ) : tableData.length > 0 ? (
                 tableData.map((row) => (
                   <PaymentTableRow
-                    key={row._id}
+                    key={row.stripe?.id || row._id}
                     row={row}
-                    onViewDetails={() => handleViewDetails(row._id)}
+                    onViewDetails={() => handleViewDetails(row.stripe?.id || row._id)}
                     onDeleteRow={() => {
-                      setDeleteId(row._id);
+                      setDeleteId(row.stripe?.id || row._id);
                       confirm.onTrue();
                     }}
                   />

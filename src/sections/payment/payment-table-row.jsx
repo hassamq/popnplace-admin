@@ -76,6 +76,23 @@ function getPersonName(person) {
   return `${person.firstName || ''} ${person.lastName || ''}`.trim() || person.email || '-';
 }
 
+// Get name from localData structure
+function getLocalDataName(localData) {
+  if (!localData) return '-';
+  return localData.name || localData.email || '-';
+}
+
+// Map Stripe status to internal status
+function mapStripeStatus(stripeStatus) {
+  const statusMap = {
+    succeeded: 'completed',
+    requires_payment_method: 'pending',
+    processing: 'processing',
+    canceled: 'cancelled',
+  };
+  return statusMap[stripeStatus] || stripeStatus;
+}
+
 // ----------------------------------------------------------------------
 
 export function PaymentTableRow({ row, onViewDetails, onDeleteRow }) {
@@ -89,15 +106,46 @@ export function PaymentTableRow({ row, onViewDetails, onDeleteRow }) {
     setOpenPopover(null);
   };
 
-  const shortPaymentId = row._id ? row._id.substring(0, 8) : '-';
-  const payerName = getPersonName(row.payer);
-  const recipientName = getPersonName(row.recipient);
+  // Handle both old and new data structures
+  const isStripeTransaction = !!row.stripe;
+
+  const shortPaymentId = isStripeTransaction
+    ? row.stripe?.id
+      ? row.stripe.id.substring(row.stripe.id.length - 8)
+      : '-'
+    : row._id
+      ? row._id.substring(0, 8)
+      : '-';
+
+  const payerName = isStripeTransaction
+    ? getLocalDataName(row.localData?.renter)
+    : getPersonName(row.payer);
+
+  const recipientName = isStripeTransaction
+    ? getLocalDataName(row.localData?.host)
+    : getPersonName(row.recipient);
+
+  const amount = isStripeTransaction ? row.financial?.renterPaid : row.amount;
+
+  const hostAmount = isStripeTransaction ? row.financial?.hostAmount : row.hostAmount;
+
+  const status = isStripeTransaction ? mapStripeStatus(row.stripe?.status) : row.status;
+
+  const method = isStripeTransaction ? row.paymentMethod?.type || 'stripe' : row.method;
+
+  const paymentType = isStripeTransaction ? 'booking_payment' : row.paymentType;
+
+  const createdAt = isStripeTransaction ? row.stripe?.created : row.createdAt;
+
+  const payerEmail = isStripeTransaction ? row.localData?.renter?.email : row.payer?.email;
+
+  const recipientEmail = isStripeTransaction ? row.localData?.host?.email : row.recipient?.email;
 
   return (
     <>
       <TableRow hover>
         <TableCell sx={{ width: 120 }}>
-          <Tooltip title={row._id || '-'}>
+          <Tooltip title={isStripeTransaction ? row.stripe?.id : row._id || '-'}>
             <Box sx={{ fontSize: '0.75rem', cursor: 'pointer', fontWeight: 600 }}>
               {shortPaymentId}
             </Box>
@@ -106,22 +154,20 @@ export function PaymentTableRow({ row, onViewDetails, onDeleteRow }) {
 
         <TableCell sx={{ width: 150 }}>
           <Box sx={{ fontSize: '0.875rem' }}>{payerName}</Box>
-          <Box sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>{row.payer?.email || '-'}</Box>
+          <Box sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>{payerEmail || '-'}</Box>
         </TableCell>
 
         <TableCell sx={{ width: 150 }}>
           <Box sx={{ fontSize: '0.875rem' }}>{recipientName}</Box>
-          <Box sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
-            {row.recipient?.email || '-'}
-          </Box>
+          <Box sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>{recipientEmail || '-'}</Box>
         </TableCell>
 
         <TableCell align="right" sx={{ width: 100 }}>
-          <Tooltip title={`Net: ${formatCurrency(row.hostAmount)}`}>
+          <Tooltip title={`Net: ${formatCurrency(hostAmount)}`}>
             <Box>
-              <Box sx={{ fontWeight: 600 }}>{formatCurrency(row.amount)}</Box>
+              <Box sx={{ fontWeight: 600 }}>{formatCurrency(amount)}</Box>
               <Box sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
-                Host: {formatCurrency(row.hostAmount)}
+                Host: {formatCurrency(hostAmount)}
               </Box>
             </Box>
           </Tooltip>
@@ -129,36 +175,34 @@ export function PaymentTableRow({ row, onViewDetails, onDeleteRow }) {
 
         <TableCell sx={{ width: 110 }}>
           <Chip
-            label={row.status}
+            label={status}
             size="small"
-            color={STATUS_COLORS[row.status] || 'default'}
+            color={STATUS_COLORS[status] || 'default'}
             variant="soft"
           />
         </TableCell>
 
         <TableCell sx={{ width: 110 }}>
           <Chip
-            label={row.method}
+            label={method}
             size="small"
-            color={METHOD_COLORS[row.method] || 'default'}
+            color={METHOD_COLORS[method] || 'default'}
             variant="soft"
           />
         </TableCell>
 
         <TableCell sx={{ width: 110 }}>
           <Chip
-            label={row.paymentType ? row.paymentType.replace('_', ' ') : '-'}
+            label={paymentType ? paymentType.replace('_', ' ') : '-'}
             size="small"
-            color={TYPE_COLORS[row.paymentType] || 'default'}
+            color={TYPE_COLORS[paymentType] || 'default'}
             variant="soft"
           />
         </TableCell>
 
         <TableCell sx={{ width: 140 }}>
-          <Box sx={{ fontSize: '0.875rem' }}>{formatDate(row.createdAt)}</Box>
-          <Box sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
-            {formatTime(row.createdAt)}
-          </Box>
+          <Box sx={{ fontSize: '0.875rem' }}>{formatDate(createdAt)}</Box>
+          <Box sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>{formatTime(createdAt)}</Box>
         </TableCell>
 
         <TableCell align="right" sx={{ width: 80 }}>
@@ -205,6 +249,7 @@ export function PaymentTableRow({ row, onViewDetails, onDeleteRow }) {
 
 PaymentTableRow.propTypes = {
   row: PropTypes.shape({
+    // Old payment structure
     _id: PropTypes.string,
     amount: PropTypes.number,
     status: PropTypes.string,
@@ -222,6 +267,49 @@ PaymentTableRow.propTypes = {
       email: PropTypes.string,
     }),
     hostAmount: PropTypes.number,
+    // New Stripe transaction structure
+    stripe: PropTypes.shape({
+      id: PropTypes.string,
+      amount: PropTypes.number,
+      status: PropTypes.string,
+      created: PropTypes.string,
+      currency: PropTypes.string,
+    }),
+    financial: PropTypes.shape({
+      renterPaid: PropTypes.number,
+      platformFee: PropTypes.number,
+      hostAmount: PropTypes.number,
+      currency: PropTypes.string,
+    }),
+    localData: PropTypes.shape({
+      renter: PropTypes.shape({
+        _id: PropTypes.string,
+        name: PropTypes.string,
+        email: PropTypes.string,
+      }),
+      host: PropTypes.shape({
+        _id: PropTypes.string,
+        name: PropTypes.string,
+        email: PropTypes.string,
+      }),
+      booking: PropTypes.shape({
+        _id: PropTypes.string,
+        status: PropTypes.string,
+        amount: PropTypes.number,
+      }),
+    }),
+    paymentMethod: PropTypes.shape({
+      id: PropTypes.string,
+      type: PropTypes.string,
+      card: PropTypes.shape({
+        brand: PropTypes.string,
+        last4: PropTypes.string,
+        expMonth: PropTypes.number,
+        expYear: PropTypes.number,
+        funding: PropTypes.string,
+        country: PropTypes.string,
+      }),
+    }),
   }).isRequired,
   onViewDetails: PropTypes.func,
   onDeleteRow: PropTypes.func,

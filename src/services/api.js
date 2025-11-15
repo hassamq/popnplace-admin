@@ -446,6 +446,19 @@ export const paymentService = {
   },
 
   /**
+   * Fetch all Stripe transactions with enriched data
+   * @returns {Promise<Object>} Stripe transactions with metadata
+   */
+  fetchStripeTransactions: async () => {
+    try {
+      const response = await apiClient.get('/api/v1/stripe/fetch-all-transactions');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  /**
    * Get single payment details
    * @param {string} id - Payment ID
    * @returns {Promise<Object>} Payment details
